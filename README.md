@@ -16,6 +16,8 @@ Plug in para la integración con gateway de pago <strong>Todo Pago</strong>
 El plug in de pagos de <strong>Todo Pago</strong>, provee a las tiendas Opencart de un nuevo m&eacute;todo de pago, integrando la tienda al gateway de pago.
 La versión de este plug in esta testeada en PHP 5.4-5.3 y Opencart 1.5.6.4 (no es compatible copn versiones 2.x en adelante).
 
+Por requerimientos del medio de pago el plugin configurará l código postal como obligatorio para Argentina. Los clientes que NO tengan código postal configurado NO podrán pagar.
+
 <a name="instalacion"></a>
 ## Instalación
 1. Descomprimir el archivo opencart-plugin-master.zip. 

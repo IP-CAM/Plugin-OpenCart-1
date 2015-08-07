@@ -4,7 +4,7 @@ require_once dirname(__FILE__).'/../../../catalog/controller/todopago/TodoPago/l
 class ControllerPaymentTodopago extends Controller{
 
 	private $error = array();
-    const VERSION = "1.0.0";
+    const VERSION = "1.1.1";
 	
 	public function install(){
 
@@ -15,57 +15,6 @@ class ControllerPaymentTodopago extends Controller{
         if (self::VERSION > $actualVersion){
             
             $this->model_payment_todopago->upgrade();
-            
-//        $this->db->query("INSERT INTO `".DB_PREFIX."setting` (`store_id`, `group`, `key`, `value`, `serialized`) VALUES ($storeId, 'todopago', 'version', '".self::VERSION."', 0)");
-//          
-//        $todopagoclavecolumn = $this->db->query("SHOW COLUMNS FROM `".DB_PREFIX."order` LIKE 'todopagoclave'"); //Esta consulta sólo es válida para MySQL 5.0.1+
-//        //En caso de haber desinstaldo el plugin al instalarlo de nuevo la columna todopagoclave ya se econtraría creada, así que verificamos que no exista antes de crearla
-//            
-//            if ($todopagoclavecolumn->num_rows != 1){ //Al pedir que sea distinto de 1, el usuario que no tenga una versión de MySQL Soportada no tendráa mayores inconvenientes y de todas manera se intentará crear el campo. En caso de ya exitir solo se registrará un error en el log, pero seguirá con la ejecución.
-//            
-//		  $this->db->query("ALTER TABLE `".DB_PREFIX."order` ADD `todopagoclave` VARCHAR( 255 );");
-//		
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute_group (sort_order) VALUES (0);");
-//		
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute_group_description(attribute_group_id, language_id, name)
-//			SELECT (SELECT MAX(attribute_group_id) attribute_group_id FROM ".DB_PREFIX."attribute_group ), language_id, 'Prevencion de Fraude'  
-//			FROM ".DB_PREFIX."language;");
-//
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute (`attribute_group_id`, `sort_order`) 
-//			VALUES ((SELECT MAX(attribute_group_id) FROM ".DB_PREFIX."attribute_group ), 0);");
-//		
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute_description (attribute_id, language_id, name)
-//			SELECT (SELECT MAX(attribute_id) attribute_id FROM ".DB_PREFIX."attribute), language_id, 'fecha evento' 
-//			FROM ".DB_PREFIX."language;");
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute (`attribute_group_id`, `sort_order`) 
-//			VALUES ((SELECT MAX(attribute_group_id) FROM ".DB_PREFIX."attribute_group ), 0);");
-//		
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute_description (attribute_id, language_id, name)
-//			SELECT (SELECT MAX(attribute_id) attribute_id FROM ".DB_PREFIX."attribute), language_id, 'codigo del producto' 
-//			FROM ".DB_PREFIX."language;");
-//
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute (`attribute_group_id`, `sort_order`) 
-//			VALUES ((SELECT MAX(attribute_group_id) FROM ".DB_PREFIX."attribute_group ), 0);");
-//		
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute_description (attribute_id, language_id, name)
-//			SELECT (SELECT MAX(attribute_id) attribute_id FROM ".DB_PREFIX."attribute), language_id, 'Tipo de envio' 
-//			FROM ".DB_PREFIX."language;");
-//
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute (`attribute_group_id`, `sort_order`) 
-//			VALUES ((SELECT MAX(attribute_group_id) FROM ".DB_PREFIX."attribute_group ), 0);");
-//		
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute_description (attribute_id, language_id, name)
-//			SELECT (SELECT MAX(attribute_id) attribute_id FROM ".DB_PREFIX."attribute), language_id, 'Tipo de servicio' 
-//			FROM ".DB_PREFIX."language;");
-//
-//		$this->db->query("INSERT INTO `".DB_PREFIX."attribute` (`attribute_group_id`, `sort_order`) 
-//			VALUES ((SELECT MAX(attribute_group_id) FROM ".DB_PREFIX."attribute_group ), 0);");
-//		
-//		$this->db->query("INSERT INTO ".DB_PREFIX."attribute_description (attribute_id, language_id, name)
-//			SELECT (SELECT MAX(attribute_id) attribute_id FROM ".DB_PREFIX."attribute), language_id, 'Tipo de delivery' 
-//			FROM ".DB_PREFIX."language;");
-//        }
-//        $this->db->query("CREATE TABLE IF NOT  EXISTS `".DB_PREFIX."todopago_transaccion` (`id` INT NOT NULL AUTO_INCREMENT,`id_orden` INT NULL, `first_step` TIMESTAMP NULL,`params_SAR` TEXT NULL, `response_SAR` TEXT NULL, `second_step` TIMESTAMP NULL, `params_GAA` TEXT NULL, `response_GAA` TEXT NULL, `request_key` TEXT NULL, `public_request_key` TEXT NULL, `answer_key` TEXT NULL, PRIMARY KEY (`id`));");
         }
         else{
             $this->log->write("todopago - Ya existía una versión posterior");
@@ -77,6 +26,7 @@ class ControllerPaymentTodopago extends Controller{
 		$this->language->load('payment/todopago');
 		$this->document->setTitle('TodoPago Configuration');
 		$this->document->addScript('view/javascript/todopago/jquery.dataTables.min.js');
+        $this->document->addStyle('view/stylesheet/todopago/jquery.dataTables.css');
         $this->document->addStyle('view/stylesheet/todopago.css');
 		$this->load->model('setting/setting');
         $this->load->model('payment/todopago');
@@ -217,16 +167,25 @@ class ControllerPaymentTodopago extends Controller{
 	public function get_status()
 	{
 		$order_id = $_GET['order_id'];
-        $authorizationHTTP = $this->get_authorizationHTTP();
-        $mode = $this->get_mode();
-        $connector = new TodoPago\Sdk($authorizationHTTP, $mode);
-		$optionsGS = array('MERCHANT'=>$this->get_id_site(), 'OPERATIONID'=>$order_id);
-		$status = $connector->getStatus($optionsGS);
-		$status_json = json_encode($status);
-		$rta = '';
-		foreach ($status['Operations'] as $key => $value) {
-			$rta .= "$key: $value \n";
-		}
+        $this->load->model('todopago/transaccion');
+        $transaction = $this->model_todopago_transaccion;
+            $this->log->write('todopago -  step: '.$transaction->getStep($order_id));
+            $this->log->write('todopago - RTRANSACTION_FINISHED: '.$transaction->getTransactionFinished());
+        if($transaction->getStep($order_id) == $transaction->getTransactionFinished()){
+            $authorizationHTTP = $this->get_authorizationHTTP();
+            $mode = $this->get_mode();
+            $connector = new TodoPago\Sdk($authorizationHTTP, $mode);
+            $optionsGS = array('MERCHANT'=>$this->get_id_site(), 'OPERATIONID'=>$order_id);
+            $status = $connector->getStatus($optionsGS);
+            $status_json = json_encode($status);
+            $rta = '';
+            foreach ($status['Operations'] as $key => $value) {
+                $rta .= "$key: $value \n";
+            }
+        }
+        else{
+            $rta = "NO HAY INFORMACIÓN DE PAGO";
+        }
 		echo($rta);
         
 	}

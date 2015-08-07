@@ -12,13 +12,13 @@
       <div id="htabs" class="htabs">
         <a href="#tab-general">GENERAL</a>
         <a href="#tab-test">AMBIENTE DEVELOPERS</a>
-        <a href="#tab-produccion">AMBIENTE PRODUCCION</a>
+        <a href="#tab-produccion">AMBIENTE PRODUCCI&Oacute;N</a>
         <a href="#tab-estadosdelpedido">ESTADOS DEL PEDIDO</a>
-        <a href="#tab-status">Status de las Operacion</a>
+        <a href="#tab-status">Status de las Operaci&oacute;n</a>
       </div>
       <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form">
        <input type="hidden" name="upgrade" value="<?php echo $need_upgrade ?>">
-       <input type="hidden" name="version" value="<?php echo $version; ?>">
+       <input type="hidden" name="version" value="<?php echo $installed_version; ?>">
         <!-- TAB GENERAL -->
         <div id="tab-general">
           <table class="form">
@@ -55,28 +55,29 @@
               <td>Canal de Ingreso del Pedido</td>
               <td>
                 <select name="canaldeingresodelpedido">
-                  <option value="Web" <?php if ($canaldeingresodelpedido=="Web") echo "selected" ?>>Web</option>
+                  <option value="Web" <?php /* if ($canaldeingresodelpedido=="Web") echo "selected" +
+                  ?>>Web</option>
                   <option value="Mobile" <?php if ($canaldeingresodelpedido=="Mobile") echo "selected" ?>>Mobile</option>
-                  <option value="Telefonica" <?php if ($canaldeingresodelpedido=="Telefonica") echo "selected" ?>>Telefonica</option>
+                  <option value="Telefonica" <?php if ($canaldeingresodelpedido=="Telefonica") echo "selected" */?>>Telefonica</option>
                 </select>
               </td>
               <td><em></em></td>
             </tr>-->
             <tr>
               <td>Dead Line</td>
-              <td><input type="number" name="deadline" value="<?php echo $deadline; ?>"/></td>
-              <td><em>días máximos para la entrega</em></td>
+              <td><input type="number" name="deadline" min=0 value="<?php echo $deadline; ?>"/></td>
+              <td><em>d&iacute;as m&aacute;ximos para la entrega</em></td>
             </tr>
 
             <tr>
-              <td>Modo Developers o Producción</td>
+              <td>Modo Developers o Producci&oacute;n</td>
               <td>
                 <select name="modotestproduccion">
                   <option value="Test" <?php if ($modotestproduccion=="Test") echo "selected" ?>>Developers</option>
-                  <option value="Produccion" <?php if ($modotestproduccion=="Produccion") echo "selected" ?>>produccion</option>
+                  <option value="Produccion" <?php if ($modotestproduccion=="Produccion") echo "selected" ?>>producci&oacute;n</option>
                 </select>
               </td>
-              <td><em>Debe ser cofigurado en CONFIGURACION - AMBIENTE DEVELOPERS / PRODUCCION</em></td>
+              <td><em>Debe ser cofigurado en CONFIGURACI&Oacute;N - AMBIENTE DEVELOPERS / PRODUCCION</em></td>
             </tr>          
           </table> 
         </div>
@@ -92,7 +93,7 @@
             <tr>
               <td>Security code</td>
               <td><input type="text" name="securitytest" value="<?php echo $securitytest; ?>" /></td>
-              <td><em>Código provisto por Todo Pago</em></td>
+              <td><em>C&oacute;digo provisto por Todo Pago</em></td>
             </tr>
           </table>
         </div>
@@ -120,7 +121,7 @@
           <table class="form">
 
             <tr>
-              <td>Estado cuando la transaccion ha sido iniciada</td>
+              <td>Estado cuando la transacci&oacute;n ha sido iniciada</td>
               <td><select name="todopago_order_status_id_pro">
                 <?php foreach ($order_statuses as $order_status) { ?>
                 <?php if ($order_status['order_status_id'] == $todopago_order_status_id_pro) { ?>
@@ -132,7 +133,7 @@
               </select></td>
             </tr>
             <tr>
-              <td>Estado cuando la transaccion ha sido aprovada</td>
+              <td>Estado cuando la transacci&oacute;n ha sido aprobada</td>
               <td><select name="todopago_order_status_id_aprov">
                 <?php foreach ($order_statuses as $order_status) { ?>
                 <?php if ($order_status['order_status_id'] == $todopago_order_status_id_aprov) { ?>
@@ -144,7 +145,7 @@
               </select></td>
             </tr>
             <tr>
-              <td>Estado cuando la transaccion ha sido Rechazada</td>
+              <td>Estado cuando la transacci&oacute;n ha sido Rechazada</td>
               <td><select name="todopago_order_status_id_rech">
                 <?php foreach ($order_statuses as $order_status) { ?>
                 <?php if ($order_status['order_status_id'] == $todopago_order_status_id_rech) { ?>
@@ -156,7 +157,7 @@
               </select></td>
             </tr>
             <tr>
-              <td>Estado cuando la transaccion ha sido Offline</td>
+              <td>Estado cuando la transacci&oacute;n ha sido Offline</td>
               <td><select name="todopago_order_status_id_off">
                 <?php foreach ($order_statuses as $order_status) { ?>
                 <?php if ($order_status['order_status_id'] == $todopago_order_status_id_off) { ?>
@@ -185,9 +186,12 @@
             <script type="text/javascript">
               $(document).ready(function() {
                 var valore = '<?php echo $orders_array ?>';
+                  console.log(valore);
                 var tabla_db = '';
-                valore_json = JSON.parse(valore);
-                valore_json.forEach(function (value, key){
+                valore_json = jQuery.parseJSON(valore);
+                console.log(valore_json);
+                jQuery.each(valore_json, function(key, value){
+                    console.log(value);
                   tabla_db += "<tr>";
                   tabla_db +="<th><a onclick='verstatus("+value.order_id+")'>#"+value.order_id+"</a></th>";
                   tabla_db +="<th>"+value.date_added+"</th>";
@@ -219,7 +223,6 @@
                 alert(datos);
               }  
             </script>
-            <link rel="stylesheet" href="http://cdn.datatables.net/1.10.2/css/jquery.dataTables.css">
             <table id="tabla" class="display" cellspacing="0" width="100%">
 
               <thead>
