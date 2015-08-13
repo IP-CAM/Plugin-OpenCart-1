@@ -245,7 +245,6 @@ class ControllerPaymentTodopago extends Controller {
         
            $this->writeLog("Paydat operación", $paydata_operation); 
             
-
         return $paydata_operation;
     }
 

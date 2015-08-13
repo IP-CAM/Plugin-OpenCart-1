@@ -1,10 +1,11 @@
 <?php
 require_once dirname(__FILE__).'/../../../catalog/controller/todopago/TodoPago/lib/Sdk.php';
+require_once DIR_APPLICATION.'resources/todopago/todopago_ctes.php';
 
 class ControllerPaymentTodopago extends Controller{
 
 	private $error = array();
-    const VERSION = "1.1.1";
+    const VERSION = TP_VERSION;
 	
 	public function install(){
 

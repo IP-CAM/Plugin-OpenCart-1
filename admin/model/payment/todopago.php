@@ -1,4 +1,5 @@
 <?php
+require_once DIR_APPLICATION.'resources/todopago/todopago_ctes.php';
 
 class ModelPaymentTodopago extends Model {
 
@@ -41,7 +42,9 @@ class ModelPaymentTodopago extends Model {
             case "1.1.0":
                 $this->upgrade1_1_1();
             case "1.1.1":
-                $this->db->query("UPDATE ".DB_PREFIX."setting SET `value`='".$actualVersion."' WHERE `group`='todopago' AND `key`='version';");
+                $this->writeLog("upgrade to v1.2.0");
+            case "1.2.0":
+                $this->db->query("UPDATE ".DB_PREFIX."setting SET `value`='".TP_VERSION."' WHERE `group`='todopago' AND `key`='version';");
         }
     }
     
