@@ -20,7 +20,7 @@ class phone{
     public static function clean($number, $logger=null){
         $return = "";
         if($logger != null){
-            $logger->writeLog("numero cliente", $number);
+            $logger->debug("numero cliente: ".$number);
         }
         
         $number = str_replace(array(" ","(",")","-","+"),"",$number);
@@ -39,7 +39,7 @@ class phone{
         }
         
         if($logger != null){
-            $logger->writeLog("numero procesado", $number);
+            $logger->debug("numero procesado", $number);
         }
         
         return $return;

@@ -1,5 +1,14 @@
 <?php
+require_once DIR_APPLICATION.'../admin/resources/todopago/Logger/loggerFactory.php';
+
 class ModelPaymentTodopago extends Model {
+
+    private $logger;
+
+    public function __construct($registry){
+        parent::__construct($registry);
+    }
+
   public function getMethod($address, $total) {
     $this->load->language('payment/todopago');
     $method_data = array(
@@ -11,14 +20,35 @@ class ModelPaymentTodopago extends Model {
     return $method_data;
   }
     
+public function setLogger($logger){
+    $this->logger = $logger;
+}
+
     public function getProducts($order_id){
         $products = $this->db->query("SELECT op.product_id, op.total, op.name, op.price, op.quantity, pd.description FROM `".DB_PREFIX."order_product` op INNER JOIN `".DB_PREFIX."product_description` pd ON op.product_id = pd.product_id  WHERE `order_id`=$order_id");  
         return $products->rows;
     }
+
+    public function getSku($productId){
+        $query = "SELECT sku from oc_product WHERE product_id = ".$productId.";";
+        $this->logger->debug("SKU query: ".$query);
+
+        $queryResult = $this->db->query($query);
+
+        $sku = $queryResult->row['sku'];
+
+        return $sku ?: $productId;
+    }
   
   public function getProductCode($productId){
-      $productCode = $this->getAttribute($productId, "codigo del producto");
-      return ($productCode != null)? $productCode : "default";
+      //$productCode = $this->getAttribute($productId, "codigo del producto");
+
+      $query = "SELECT c.name AS category FROM ".DB_PREFIX."product AS p INNER JOIN ".DB_PREFIX."product_to_category as pc ON p.product_id = pc.product_id INNER JOIN ".DB_PREFIX."category_description AS c ON pc.category_id = c.category_id WHERE p.product_id = ".$productId.";";
+      $this->logger->debug("query productCode: ".$query);
+      $result = $this->db->query($query);
+      $productCode = $result->row['category'];
+
+      return ($productCode != null)? $productCode : "default"; //Si no tiene categoría asignada, devueelve default.
   }
     
   private function getAttribute($productId, $attribute){

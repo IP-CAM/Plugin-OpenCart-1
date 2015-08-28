@@ -1,7 +1,13 @@
 <?php
+include_once DIR_APPLICATION.'resources/todopago/Logger/loggerFactory.php';
 require_once DIR_APPLICATION.'resources/todopago/todopago_ctes.php';
 
 class ModelPaymentTodopago extends Model {
+
+    public function __construct($registry){
+        parent::__construct($registry);
+        $this->logger = loggerFactory::createLogger();
+    }
 
 	public function get_orders()
 	{
@@ -22,14 +28,14 @@ class ModelPaymentTodopago extends Model {
     }
     
     public function upgrade(){
-        $this->writeLog("Verifying required upgrades");
+        $this->logger->debug("Verifying required upgrades");
         /*******************************************************************
         *Al no tener breaks entrará en todos los case posteriores.         *
         *TODAS LAS VERSIONES DEBEN APARECER,                               *
         *de lo contrario la version que no aparezca NUNCA PODRÁ UPGRADEARSE*
         *******************************************************************/
         $actualVersion = $this->getVersion();
-        $this->writeLog("version actual", $actualVersion);
+        $this->logger->debug("version actual: ".$actualVersion);
         switch ($actualVersion){
             case "0.0.0":
                 $this->install();
@@ -38,12 +44,15 @@ class ModelPaymentTodopago extends Model {
             case "0.9.9":
                 $this->upgrade1_0_0();
             case "1.0.0":
-                $this->writeLog("upgrade to v1.1.0");
+                $this->logger->debug("upgrade to v1.1.0");
             case "1.1.0":
                 $this->upgrade1_1_1();
             case "1.1.1":
-                $this->writeLog("upgrade to v1.2.0");
+                $this->logger->debug("upgrade to v1.2.0");
             case "1.2.0":
+                $this->logger->debug("upgrade to v1.3.0");
+            case "1.3.0":
+                $this->logger->info("Plugin instalado/upgradeado");
                 $this->db->query("UPDATE ".DB_PREFIX."setting SET `value`='".TP_VERSION."' WHERE `group`='todopago' AND `key`='version';");
         }
     }
@@ -51,7 +60,7 @@ class ModelPaymentTodopago extends Model {
     private function install(){
         $storeId = 0;
         
-        $this->writeLog('Begining install');
+        $this->logger->info('Begining install');
           
             
 		  $this->db->query("ALTER TABLE `".DB_PREFIX."order` ADD `todopagoclave` VARCHAR( 255 );");
@@ -99,13 +108,13 @@ class ModelPaymentTodopago extends Model {
     
     private function upgrade0_9_9(){
         
-        $this->writeLog("Upgrade to v0.9.9");
+        $this->logger->debug("Upgrade to v0.9.9");
         
         $this->db->query("CREATE TABLE IF NOT  EXISTS `".DB_PREFIX."todopago_transaccion` (`id` INT NOT NULL AUTO_INCREMENT,`id_orden` INT NULL, `first_step` TIMESTAMP NULL,`params_SAR` TEXT NULL, `response_SAR` TEXT NULL, `second_step` TIMESTAMP NULL, `params_GAA` TEXT NULL, `response_GAA` TEXT NULL, `request_key` TEXT NULL, `public_request_key` TEXT NULL, `answer_key` TEXT NULL, PRIMARY KEY (`id`));");
     }
     
     private function upgrade1_0_0(){
-        $this->writeLog("upgrade to v1.0.0");
+        $this->logger->debug("upgrade to v1.0.0");
         
         $this->setProvincesCode();
     }
@@ -144,15 +153,9 @@ class ModelPaymentTodopago extends Model {
     }
     
     private function upgrade1_1_1(){
-        $this->writeLog("upgrade to v.1.1.1");
+        $this->logger->debug("upgrade to v.1.1.1");
         
         $this->db->query("UPDATE `".DB_PREFIX."country` set postcode_required=1 Where iso_code_2='AR';"); //Hace obligatorio el códigoo postal para Argentiiina ya que es necesario para que la compra sea procesada.
-    }
-    
-     function writeLog($action, $params = false){
-        $logMessage = "todopago - ".$action;
-        $logMessage .= $params? " - parametros: ".json_encode($params):'';
-        $this->log->write($logMessage);
     }
 }
 

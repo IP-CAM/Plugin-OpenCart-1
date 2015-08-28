@@ -7,7 +7,7 @@ Plug in para la integración con gateway de pago <strong>Todo Pago</strong>
 - [Instalación](#instalacion)
 - [Configuración](#configuracion)
  - [Configuración plug in](#confplugin)
-- [Datos adiccionales para prevención de fraude](#cybersource) 
+- [Datos adiccionales para prevención de fraude](#PrevencionFraude)
 - [Consulta de transacciones](#constrans)
 - [Tablas de referencia](#tablas)
 
@@ -68,7 +68,7 @@ El plug in para lograr las nuevas funcionalidades y su persistencia dentro del f
 #####Nuevas Columnas:
 1. en tabla order: todopagoclave.
 
-#####Nuevos atributos:
+<!--#####Nuevos atributos:
 1. del tipo "attribute": fecha evento, codigo del producto, Tipo de envio, Tipo de servicio, Tipo de delivery.<br />
 Los valores posiblespara cada uno de estos atributos deben ser:
 ![imagen nuevos catalogo producto](https://raw.githubusercontent.com/TodoPago/imagenes/master/README.img/open_attributes.PNG)
@@ -76,7 +76,7 @@ Los valores posiblespara cada uno de estos atributos deben ser:
 <br/>
 [<sub>Volver a inicio</sub>](#inicio)
 
-<a name="cybersource"></a>
+<a name="PrevencionFraude"></a>-->
 ## Prevención de Fraude
 - [Consideraciones Generales](#cons_generales)
 - [Consideraciones para vertical RETAIL](#cons_retail)

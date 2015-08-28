@@ -1,5 +1,6 @@
 <?php
 //include_once dirname(__FILE__).'/todopago_log.php';
+require_once dirname(__FILE__).'/../TodoPago/lib/Sdk.php';
 
 abstract class Controlfraude{
 
@@ -7,18 +8,17 @@ abstract class Controlfraude{
     private $customer;
     protected $model;
     
-	public function __construct($order, $customer, $model){
+	public function __construct($order, $customer, $model, $logger){
         $this->order = $order;
 		$this->customer = $customer;
         $this->model = $model;
+        $this->logger = $logger;
         
         $order_id = $this->order['order_id'];
         
         $this->order['payment_zone_cs_code'] = $this->model->getProvinceCode($this->order['payment_zone_code'], $order_id);
         $this->order['shipping_zone_cs_code'] = $this->model->getProvinceCode($this->order['shipping_zone_code'], $order_id);
         $this->order['coupon_code'] = $this->model->getCouponCode($order_id);
-        
-        //$this->log = new TodoPagoLog($this->order['order_id'], $this->customer['customer_id']);
 	}
 
 	public function getDataCF(){
@@ -30,13 +30,13 @@ abstract class Controlfraude{
 		$payDataOperacion = array();
         
 		$billingAdress = $this->order['payment_city'];
-		//$this->log->writeTP("CSBTCITY - Ciudad de facturaci&oacute;n");
+		$this->logger->debug("CSBTCITY - Ciudad de facturaci&oacute;n");
 		$payDataOperacion ['CSBTCITY'] = $this->getField($this->order['payment_city']);
         
-		//$this->log->writeTP(" CSBTCOUNTRY - pa&iacute;s de facturaci&oacute;n (ver si magento utiliza C&oacute;digo ISO)");
+		$this->logger->debug(" CSBTCOUNTRY - pa&iacute;s de facturaci&oacute;n (ver si magento utiliza C&oacute;digo ISO)");
 		$payDataOperacion ['CSBTCOUNTRY'] = $this->order['payment_iso_code_2'];
         
-		//$this->log->writeTP(" CSBTCUSTOMERID - identificador del usuario (no correo electronico)");
+		$this->logger->debug(" CSBTCUSTOMERID - identificador del usuario (no correo electronico)");
 		$payDataOperacion ['CSBTCUSTOMERID'] = $this->order['customer_id'];
 
 		if($payDataOperacion ['CSBTCUSTOMERID']=="" or $payDataOperacion ['CSBTCUSTOMERID']==null)
@@ -44,51 +44,51 @@ abstract class Controlfraude{
 			$payDataOperacion ['CSBTCUSTOMERID']= "guest".date("ymdhs");
 		}
         
-		//$this->log->writeTP(" CSBTIPADDRESS - ip de la pc del comprador");
+		$this->logger->debug(" CSBTIPADDRESS - ip de la pc del comprador");
 		$payDataOperacion ['CSBTIPADDRESS'] = $this->order['ip'];
         
-		//$this->log->writeTP(" CSBTEMAIL - email del usuario al que se le emite la factura");
-		$payDataOperacion ['CSBTEMAIL'] = $this->order['email'];
+		$this->logger->debug(" CSBTEMAIL - email del usuario al que se le emite la factura");
+		$payDataOperacion ['CSBTEMAIL'] = $this->getField($this->order['email']);
         
-		//$this->log->writeTP(" CSBTFIRSTNAME - nombre de usuario el que se le emite la factura");
-		$payDataOperacion ['CSBTFIRSTNAME'] = $this->order['payment_firstname'];
+		$this->logger->debug(" CSBTFIRSTNAME - nombre de usuario el que se le emite la factura");
+		$payDataOperacion ['CSBTFIRSTNAME'] = $this->getField($this->order['payment_firstname']);
         
-		//$this->log->writeTP(" CSBTLASTNAME - Apellido del usuario al que se le emite la factura");
-		$payDataOperacion ['CSBTLASTNAME'] = $this->order['payment_lastname'];
+		$this->logger->debug(" CSBTLASTNAME - Apellido del usuario al que se le emite la factura");
+		$payDataOperacion ['CSBTLASTNAME'] = $this->getField($this->order['payment_lastname']);
         
-		//$this->log->writeTP(" CSBTPOSTALCODE - Código Postal de la dirección de facturación");
-		$payDataOperacion ['CSBTPOSTALCODE'] = $this->order['payment_postcode'];
+		$this->logger->debug(" CSBTPOSTALCODE - Código Postal de la dirección de facturación");
+		$payDataOperacion ['CSBTPOSTALCODE'] = $this->getField($this->order['payment_postcode']);
         
-		//$this->log->writeTP(" CSBTPHONENUMBER - Tel&eacute;fono del usuario al que se le emite la factura. No utilizar guiones, puntos o espacios. Incluir c&oacute;digo de pa&iacute;s");
-		$payDataOperacion ['CSBTPHONENUMBER'] = phone::clean($this->order['telephone']);
+		$this->logger->debug(" CSBTPHONENUMBER - Tel&eacute;fono del usuario al que se le emite la factura. No utilizar guiones, puntos o espacios. Incluir c&oacute;digo de pa&iacute;s");
+		$payDataOperacion ['CSBTPHONENUMBER'] = phone::clean($this->getField($this->order['telephone']));
         
-		//$this->log->writeTP(" CSBTSTATE - Provincia de la direcci&oacute;n de facturaci&oacute;n (hay que cambiar esto!!! por datos hacepatdos por el gateway)");
+		$this->logger->debug(" CSBTSTATE - Provincia de la direcci&oacute;n de facturaci&oacute;n (hay que cambiar esto!!! por datos hacepatdos por el gateway)");
 		$payDataOperacion ['CSBTSTATE'] =  $this->order['payment_zone_cs_code'];
             
-		//$this->log->writeTP(" CSBTSTREET1 - Domicilio de facturaci&oacute;n (calle y nro)");
-		$payDataOperacion ['CSBTSTREET1'] = $this->order['payment_address_1'];
+		$this->logger->debug(" CSBTSTREET1 - Domicilio de facturaci&oacute;n (calle y nro)");
+		$payDataOperacion ['CSBTSTREET1'] = $this->getField($this->order['payment_address_1']);
         
-		////$this->log->writeTP(" CSBTSTREET2 - Complemento del domicilio. (piso, departamento)_ No Mandatorio");
-		//$payDataOperacion ['CSBTSTREET2'] = $this->order['payment_address_2'];
+		//$this->logger->debug(" CSBTSTREET2 - Complemento del domicilio. (piso, departamento)_ No Mandatorio");
+		//$payDataOperacion ['CSBTSTREET2'] = $this->getField($this->order['payment_address_2']);
         
-		//$this->log->writeTP(" CSPTCURRENCY- moneda");
+		$this->logger->debug(" CSPTCURRENCY- moneda");
 		$payDataOperacion ['CSPTCURRENCY'] = "ARS";
         
-		//$this->log->writeTP(" CSPTGRANDTOTALAMOUNT - 999999[.CC] Con decimales opcional usando el puntos como separador de decimales. No se permiten comas, ni como separador de miles ni como separador de decimales.");
+		$this->logger->debug(" CSPTGRANDTOTALAMOUNT - 999999[.CC] Con decimales opcional usando el puntos como separador de decimales. No se permiten comas, ni como separador de miles ni como separador de decimales.");
 		$payDataOperacion ['CSPTGRANDTOTALAMOUNT'] = number_format($this->order['total'], 2, ".", "");
         
-		////$this->log->writeTP(" CSMDD6 - Canal de venta");
+		//$this->logger->debug(" CSMDD6 - Canal de venta");
 		//$payDataOperacion ['CSMDD6'] = $this->config->get('canaldeingresodelpedido');
         
 		if(!empty($this->customer)){
-        //$this->log->writeTP(" CSMDD7 - Fecha Registro Comprador (num Dias) - ver que pasa si es guest");
+        $this->logger->debug(" CSMDD7 - Fecha Registro Comprador (num Dias) - ver que pasa si es guest");
         $payDataOperacion['CSMDD7'] = $this->getDaysQty($this->customer['date_added']);
             
-		//$this->log->writeTP(" CSMDD8 - Usuario Guest? (S/N). En caso de ser Y, el campo CSMDD9 no deber&acute; enviarse");
+		$this->logger->debug(" CSMDD8 - Usuario Guest? (S/N). En caso de ser Y, el campo CSMDD9 no deber&acute; enviarse");
             $payDataOperacion['CSMDD8'] = "S";
             
-			//$this->log->writeTP(" CSMDD9 - Customer password Hash: criptograma asociado al password del comprador final");
-            $payDataOperacion['CSMDD9'] = $this->customer['password'];   
+			$this->logger->debug(" CSMDD9 - Customer password Hash: criptograma asociado al password del comprador final");
+            $payDataOperacion['CSMDD9'] = $this->getField($this->customer['password']);
             
             $payDataOperacion['CSMDD10'] = $this->model->getQtyOrders($this->customer['customer_id']);
             
@@ -97,9 +97,9 @@ abstract class Controlfraude{
             $payDataOperacion['CSMDD8'] = "N";
         }
 
-		//$this->log->writeTP(" CSMDD11 Customer Cell Phone");
+		$this->logger->debug(" CSMDD11 Customer Cell Phone");
         
-		$payDataOperacion['CSMDD11'] = phone::clean($this->order['telephone']);
+		$payDataOperacion['CSMDD11'] = phone::clean($this->getField($this->order['telephone']));
 
 		return $payDataOperacion;
 
@@ -160,8 +160,8 @@ abstract class Controlfraude{
 
 			$product_name = $item['name'];
 			$name_array [] = $product_name;
-
-			$sku = $item['product_id']; //Uso el id en lugar del SKU ya que el id es requerido por opencart y el SKU no.
+			$item['sku'] = $this->model->getSku($item['product_id']);
+            $sku = $item['sku'] ?: $item['product_id'];  //El sku no es requerido por openCart, entonces si no está seteado devuelve  el product_id
 			$sku_array [] = $this->getField($sku);
 
 			
@@ -185,12 +185,13 @@ abstract class Controlfraude{
 	public function getField($datasources){
 		$return = "";
 		try{
-
-			$return = $this->_sanitize_string($datasources);
-			//$this->log->writeTP("devolvio $return");
+            $this->logger->debug('entró: '.$datasources);
+			$return = TodoPago\Sdk::sanitizeValue($datasources);
+			$return = str_replace('#', '', $return);
+			$this->logger->info("devolvio: ".$return);
 
 		}catch(Exception $e){
-			//$this->log->writeTP("Modulo de pago - TodoPago ==> operation_id:  $this->order->getIncrementId() - no se pudo agregar el campo: Exception: $e");
+			$this->logger->error("No se pudo agregar el campo", $e);
 		}
 
 		return $return;

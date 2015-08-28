@@ -1,11 +1,17 @@
 <?php
 require_once dirname(__FILE__).'/../../../catalog/controller/todopago/TodoPago/lib/Sdk.php';
 require_once DIR_APPLICATION.'resources/todopago/todopago_ctes.php';
+require_once DIR_APPLICATION.'resources/todopago/Logger/loggerFactory.php';
 
 class ControllerPaymentTodopago extends Controller{
+    const VERSION = TP_VERSION;
 
 	private $error = array();
-    const VERSION = TP_VERSION;
+
+    public function __construct($registry){
+        parent::__construct($registry);
+        $this->logger = loggerFactory::createLogger();
+    }
 	
 	public function install(){
 
@@ -18,13 +24,14 @@ class ControllerPaymentTodopago extends Controller{
             $this->model_payment_todopago->upgrade();
         }
         else{
-            $this->log->write("todopago - Ya existía una versión posterior");
+            $this->logger->info("todopago - Ya existía una versión posterior");
         }
             
 	}
 
 	public function index() {
-		$this->language->load('payment/todopago');
+
+        $this->language->load('payment/todopago');
 		$this->document->setTitle('TodoPago Configuration');
 		$this->document->addScript('view/javascript/todopago/jquery.dataTables.min.js');
         $this->document->addStyle('view/stylesheet/todopago/jquery.dataTables.css');
@@ -170,18 +177,24 @@ class ControllerPaymentTodopago extends Controller{
 		$order_id = $_GET['order_id'];
         $this->load->model('todopago/transaccion');
         $transaction = $this->model_todopago_transaccion;
-            $this->log->write('todopago -  step: '.$transaction->getStep($order_id));
-            $this->log->write('todopago - RTRANSACTION_FINISHED: '.$transaction->getTransactionFinished());
+            $this->logger->info('todopago -  step: '.$transaction->getStep($order_id));
+            $this->logger->info('todopago - RTRANSACTION_FINISHED: '.$transaction->getTransactionFinished());
         if($transaction->getStep($order_id) == $transaction->getTransactionFinished()){
             $authorizationHTTP = $this->get_authorizationHTTP();
             $mode = $this->get_mode();
-            $connector = new TodoPago\Sdk($authorizationHTTP, $mode);
-            $optionsGS = array('MERCHANT'=>$this->get_id_site(), 'OPERATIONID'=>$order_id);
-            $status = $connector->getStatus($optionsGS);
-            $status_json = json_encode($status);
-            $rta = '';
-            foreach ($status['Operations'] as $key => $value) {
-                $rta .= "$key: $value \n";
+            try{
+                $connector = new TodoPago\Sdk($authorizationHTTP, $mode);
+                $optionsGS = array('MERCHANT'=>$this->get_id_site(), 'OPERATIONID'=>$order_id);
+                $status = $connector->getStatus($optionsGS);
+                $status_json = json_encode($status);
+                $rta = '';
+                foreach ($status['Operations'] as $key => $value) {
+                    $rta .= "$key: $value \n";
+                }
+            }
+            catch(Exception $e){
+                $this->logger->fatal("Ha surgido un error al consultar el estado de la orden: ", $e);
+                $rta = 'ERROR AL CONSULTAR LA ORDEN';
             }
         }
         else{
