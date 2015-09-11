@@ -14,9 +14,9 @@ Plug in para la integración con gateway de pago <strong>Todo Pago</strong>
 [](#consideracionesgenerales)
 ## Consideraciones Generales
 El plug in de pagos de <strong>Todo Pago</strong>, provee a las tiendas Opencart de un nuevo m&eacute;todo de pago, integrando la tienda al gateway de pago.
-La versión de este plug in esta testeada en PHP 5.4-5.3 y Opencart 1.5.6.4 (no es compatible copn versiones 2.x en adelante).
+La versión de este plug in esta testeada en PHP 5.4-5.3 y Opencart 1.5.6.4 (no es compatible con versiones 2.x en adelante).
 
-Por requerimientos del medio de pago el plugin configurará l código postal como obligatorio para Argentina. Los clientes que NO tengan código postal configurado NO podrán pagar.
+Por requerimientos del medio de pago el plugin configurará el código postal como obligatorio para Argentina. Los clientes que NO tengan código postal configurado NO podrán pagar.
 
 <a name="instalacion"></a>
 ## Instalación
@@ -27,7 +27,7 @@ Por requerimientos del medio de pago el plugin configurará l código postal com
 ![imagen de configuracion](https://raw.githubusercontent.com/TodoPago/imagenes/master/README.img/opencart_configuracion.PNG)
 
 Observaci&oacute;n:
-Descomentar: <em>extension=php_soap.dll</em> del php.ini, ya que para la conexión al gateway se utiliza la clase <em>SoapClient</em> del API de PHP.
+Descomentar: _extension=php_soap.dll_ y _extension=php_openssl.dll_ del php.ini, ya que para la conexión al gateway se utiliza la clase _SoapClient_ del API de PHP.
 <br />
 [<sub>Volver a inicio</sub>](#inicio)
 
