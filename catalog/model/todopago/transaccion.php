@@ -1,17 +1,22 @@
 <?php
 class ModelTodopagoTransaccion extends Model {
-    
+
     const NEW_ORDER = 0;
     const FIRST_STEP = 1;
     const SECOND_STEP = 2;
     const TRANSACTION_FINISHED = 3;
-    
-    public function getTransaction($orderId) {
+
+    private function getTransaction($orderId) {
         $query = $this->db->query("SELECT * FROM ".DB_PREFIX."todopago_transaccion WHERE id_orden = ".$orderId);
-        
+
         return $query->row;
     }
-    
+
+    private function getField($orderId, $fieldName){
+        $transaction = $this->getTransaction($orderId);
+        return $transaction[$fieldName];
+    }
+
     public function getStep($orderId){
         $transaction = $this->getTransaction($orderId);
         if ($transaction == null){
@@ -26,10 +31,14 @@ class ModelTodopagoTransaccion extends Model {
         else{
             $step = self::TRANSACTION_FINISHED;
         }
-        
+
         return $step;
     }
-    
+
+    public function getRequestKey($orderId){
+        return $this->getField($orderId, 'request_key');
+    }
+
     public function createRegister($orderId){
         if ($this->getStep($orderId) == self::NEW_ORDER){
             $this->db->query("INSERT INTO ".DB_PREFIX."todopago_transaccion (id_orden) VALUES (".$orderId.")");
@@ -39,7 +48,7 @@ class ModelTodopagoTransaccion extends Model {
             return 0;
         }
     }
-    
+
     public function recordFirstStep($orderId, $paramsSAR, $responseSAR){
         $datetime = new DateTime('NOW');
         if ($this->getStep($orderId) == self::FIRST_STEP){
@@ -53,7 +62,7 @@ class ModelTodopagoTransaccion extends Model {
             return 0;
         }
     }
-    
+
     public function recordSecondStep($orderId, $paramsGAA, $responseGAA){
         $datetime = new DateTime('NOW');
         if ($this->getStep($orderId) == self::SECOND_STEP){
@@ -66,21 +75,20 @@ class ModelTodopagoTransaccion extends Model {
             return 0;
         }
     }
-    
-    
+
     //No puedo acceder a las constantes, so...
     public function getNewOrder(){
         return self::NEW_ORDER;
     }
-    
+
     public function getFirstStep(){
         return self::FIRST_STEP;
     }
-    
+
     public function getSecondStep(){
         return self::SECOND_STEP;
     }
-    
+
     public function getTransactionFinished(){
         return self::TRANSACTION_FINISHED;
     }

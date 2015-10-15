@@ -25,12 +25,12 @@ public function setLogger($logger){
 }
 
     public function getProducts($order_id){
-        $products = $this->db->query("SELECT op.product_id, op.total, op.name, op.price, op.quantity, pd.description FROM `".DB_PREFIX."order_product` op INNER JOIN `".DB_PREFIX."product_description` pd ON op.product_id = pd.product_id  WHERE `order_id`=$order_id");  
+        $products = $this->db->query("SELECT op.product_id, op.total, op.name, op.price, op.quantity, pd.description FROM `".DB_PREFIX."order_product` op INNER JOIN `".DB_PREFIX."product_description` pd ON op.product_id = pd.product_id  WHERE `order_id`=".(int)$order_id." AND language_id=".(int)$this->config->get('config_language_id').";");
         return $products->rows;
     }
 
     public function getSku($productId){
-        $query = "SELECT sku from oc_product WHERE product_id = ".$productId.";";
+        $query = "SELECT sku from ".DB_PREFIX."product WHERE product_id = ".$productId.";";
         $this->logger->debug("SKU query: ".$query);
 
         $queryResult = $this->db->query($query);
@@ -87,18 +87,6 @@ public function setLogger($logger){
     }
     
     public function getDeadLine(){
-        return $this->config->get('deadline');
-    }
-    
-    public function getVersion(){
-        $actualVersionQuery = $this->db->query("SELECT value FROM `".DB_PREFIX."setting` WHERE `group` = 'todopago' AND `key` = 'version'");
-        $actualVersion = ($actualVersionQuery->num_rows == 0)? "0." : $actualVersionQuery->row['value'];
-        if($actualVersion == "0."){
-            $todopagoclavecolumn = $this->db->query("SHOW COLUMNS FROM `".DB_PREFIX."order` LIKE 'todopagoclave'"); //Esta consulta sólo es válida para MySQL 5.0.1+
-        //En caso de ya tener instalada la v0.9.0 del plugin al instalarlo de nuevo la columna todopagoclave ya se econtraría creada.
-            
-            $actualVersion .= ($todopagoclavecolumn->num_rows != 1)? "0.0" : "9.0";
-        }
-	   return $actualVersion;
+        return $this->config->get('todopago_deadline');
     }
   }

@@ -1,5 +1,5 @@
 <?php
-require_once DIR_APPLICATION.'controller/todopago/TodoPago/lib/Sdk.php';
+require_once DIR_APPLICATION.'controller/todopago/vendor/autoload.php';
 require_once DIR_APPLICATION.'controller/todopago/ControlFraude/includes.php';
 require_once DIR_APPLICATION.'../admin/resources/todopago/Logger/loggerFactory.php';
 
@@ -49,7 +49,9 @@ class ControllerPaymentTodopago extends Controller {
             //$payData['canaldeingresodelpedido'] = $this->config->get('canaldeingresodelpedido');
             $authorizationHTTP = $this->get_authorizationHTTP();
             $mode = ($this->get_mode()=="Test")?"test":"prod";
-
+            $this->logger->debug("Authorization: ".$authorizationHTTP);
+            var_dump($authorizationHTTP);
+            $this->logger->debug('Mode: '.$mode);
             try{
                 $this->callSAR($authorizationHTTP, $mode, $paramsSAR);
             }catch (Exception $e){
@@ -84,7 +86,7 @@ class ControllerPaymentTodopago extends Controller {
             $this->load->model('payment/todopago');
             $this->model_payment_todopago->setLogger($this->logger);
             
-            $controlFraude = ControlFraudeFactory::getControlfraudeExtractor($this->config->get('segmentodelcomercio'), $this->order, $customer, $this->model_payment_todopago, $this->logger);
+            $controlFraude = ControlFraudeFactory::getControlfraudeExtractor($this->config->get('todopago_segmentodelcomercio'), $this->order, $customer, $this->model_payment_todopago, $this->logger);
             $controlFraude_data = $controlFraude->getDataCF();
 
             $paydata_comercial = $this->getOptionsSARComercio(); 
@@ -107,7 +109,6 @@ class ControllerPaymentTodopago extends Controller {
                 $this->logger->info("response SAR: ".json_encode($rta_first_step));
 
                 if($rta_first_step["StatusCode"] == -1){
-                    $this->db->query("UPDATE ".DB_PREFIX."order SET todopagoclave='".$rta_first_step['RequestKey']."' WHERE  order_id=$this->order_id;");
                     $query = $this->model_todopago_transaccion->recordFirstStep($this->order_id, $paramsSAR, $rta_first_step, $rta_first_step['RequestKey'], $rta_first_step['PublicRequestKey']);
                     $this->logger->debug('query recordFiersStep(): '.$query);
                     $this->model_checkout_order->update($this->order_id, $this->config->get('todopago_order_status_id_pro'), "TODO PAGO: ".$rta_first_step['StatusMessage']);
@@ -137,7 +138,7 @@ class ControllerPaymentTodopago extends Controller {
 
             $mode = ($this->get_mode()=="Test")?"test":"prod";
             $this->load->model('checkout/order');
-            $requestKey = $this->db->query("SELECT todopagoclave FROM ".DB_PREFIX."order WHERE order_id=$this->order_id")->row['todopagoclave'];
+            $requestKey = $this->model_todopago_transaccion->getRequestKey($this->order_id);
             $optionsAnswer = array(
                 'Security' => $this->get_security_code(),
                 'Merchant' => $this->get_id_site(),
@@ -255,26 +256,30 @@ class ControllerPaymentTodopago extends Controller {
     }
 
     private function get_authorizationHTTP(){
-        return  json_decode(html_entity_decode($this->config->get('authorizationHTTP')),TRUE);
+        if($this->get_mode()=="Test"){
+            return  json_decode(html_entity_decode($this->config->get('todopago_authorizationHTTPtest')),TRUE);
+        } else {
+            return  json_decode(html_entity_decode($this->config->get('todopago_authorizationHTTPproduccion')),TRUE);
+        }
     }
 
     private function get_mode(){
-        return html_entity_decode($this->config->get('modotestproduccion'));
+        return html_entity_decode($this->config->get('todopago_modotestproduccion'));
     }
 
     private function get_id_site(){
         if($this->get_mode()=="Test"){
-            return html_entity_decode($this->config->get('idsitetest'));
+            return html_entity_decode($this->config->get('todopago_idsitetest'));
         }else{
-            return html_entity_decode($this->config->get('idsiteproduccion'));
+            return html_entity_decode($this->config->get('todopago_idsiteproduccion'));
         }
     }
 
     private function get_security_code(){
         if($this->get_mode()=="Test"){
-            return html_entity_decode($this->config->get('securitytest'));
+            return html_entity_decode($this->config->get('todopago_securitytest'));
         }else{
-            return html_entity_decode($this->config->get('securityproduccion'));
+            return html_entity_decode($this->config->get('todopago_securityproduccion'));
         }
     }
 

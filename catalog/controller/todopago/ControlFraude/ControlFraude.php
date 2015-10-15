@@ -45,7 +45,7 @@ abstract class Controlfraude{
 		}
         
 		$this->logger->debug(" CSBTIPADDRESS - ip de la pc del comprador");
-		$payDataOperacion ['CSBTIPADDRESS'] = $this->order['ip'];
+		$payDataOperacion ['CSBTIPADDRESS'] = ($this->order['ip'] == '::1')? '127.0.0.1' : $this->order['ip'];
         
 		$this->logger->debug(" CSBTEMAIL - email del usuario al que se le emite la factura");
 		$payDataOperacion ['CSBTEMAIL'] = $this->getField($this->order['email']);
@@ -62,7 +62,7 @@ abstract class Controlfraude{
 		$this->logger->debug(" CSBTPHONENUMBER - Tel&eacute;fono del usuario al que se le emite la factura. No utilizar guiones, puntos o espacios. Incluir c&oacute;digo de pa&iacute;s");
 		$payDataOperacion ['CSBTPHONENUMBER'] = phone::clean($this->getField($this->order['telephone']));
         
-		$this->logger->debug(" CSBTSTATE - Provincia de la direcci&oacute;n de facturaci&oacute;n (hay que cambiar esto!!! por datos hacepatdos por el gateway)");
+		$this->logger->debug(" CSBTSTATE - Provincia de la direcci&oacute;n de facturaci&oacute;n");
 		$payDataOperacion ['CSBTSTATE'] =  $this->order['payment_zone_cs_code'];
             
 		$this->logger->debug(" CSBTSTREET1 - Domicilio de facturaci&oacute;n (calle y nro)");
