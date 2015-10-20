@@ -97,7 +97,9 @@ class ControllerPaymentTodopago extends Controller{
                     $this->logger->debug("upgrade to v1.3.0");
                 case "1.3.0":
                     $this->logger->debug("upgrade to v1.4.0");
-                case "1.4.0";
+                case "1.4.0":
+                    $this->logger->debug("upgrade to v1.5.0");
+                case "1.5.0":
                     $this->logger->info("Plugin instalado/upgradeado");
                     try{
                         $this->model_payment_todopago->updateVersion($actualVersion); //Registra en la tabla el nro de Versión a la que se ha actualizado

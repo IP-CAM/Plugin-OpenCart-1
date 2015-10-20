@@ -50,7 +50,6 @@ class ControllerPaymentTodopago extends Controller {
             $authorizationHTTP = $this->get_authorizationHTTP();
             $mode = ($this->get_mode()=="Test")?"test":"prod";
             $this->logger->debug("Authorization: ".$authorizationHTTP);
-            var_dump($authorizationHTTP);
             $this->logger->debug('Mode: '.$mode);
             try{
                 $this->callSAR($authorizationHTTP, $mode, $paramsSAR);

@@ -187,7 +187,6 @@
             $this->load->model('payment/todopago');
             $orders_array = $this->model_payment_todopago->get_orders();
             $orders_array = json_encode($orders_array->rows);
-            //var_dump($orders_array);
             ?>
             <script type="text/javascript">
               $(document).ready(function() {
