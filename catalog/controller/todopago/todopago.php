@@ -25,7 +25,7 @@ class ControllerTodopagoTodopago extends Controller{
 			);
 
     // set data to the variable
-		$this->data['my_custom_text'] = "Fallo en la transaccion.";
+		$data['my_custom_text'] = "Fallo en la transaccion.";
 
     // call the "View" to render the output
 		$this->response->setOutput($this->render());
@@ -53,15 +53,15 @@ class ControllerTodopagoTodopago extends Controller{
 			);
 
     // set data to the variable
-		$this->data['my_custom_text'] = "Pago con Cupon.";
+		$data['my_custom_text'] = "Pago con Cupon.";
 		
     // call the "View" to render the output
 		$this->response->setOutput($this->render());	
 	}
 
 	public function prueba(){
-		//$this->redirect($this->url->link("todopago/todopago/cupon&nroop=$nroop&venc=$venc&total=$total&code=$code&tipocode=$tipocode&empresa=&empresa"));  
-		$this->redirect($this->url->link('todopago/todopago/cupon', 'nroop=$nroop&venc=$venc&total=$total&code=$code&tipocode=$tipocode&empresa=$empresa', 'SSL'));
+		//$this->response->redirect($this->url->link("todopago/todopago/cupon&nroop=$nroop&venc=$venc&total=$total&code=$code&tipocode=$tipocode&empresa=&empresa"));
+		$this->response->redirect($this->url->link('todopago/todopago/cupon', 'nroop=$nroop&venc=$venc&total=$total&code=$code&tipocode=$tipocode&empresa=$empresa', 'SSL'));
 	}
 
 	public function codebar() {

@@ -9,6 +9,7 @@ Plug in para la integración con gateway de pago <strong>Todo Pago</strong>
  - [Configuración plug in](#confplugin)
 - [Datos adiccionales para prevención de fraude](#PrevencionFraude)
 - [Consulta de transacciones](#constrans)
+- [Devoluciones](#devoluciones)
 - [Tablas de referencia](#tablas)
 
 [](#consideracionesgenerales)
@@ -130,9 +131,22 @@ nota: el valor resultante de $order->getItemsCollection(), se usan como referenc
 
 <a name="constrans"></a>
 ## Consulta de Transacciones
-El plug in crea un nuevo <strong>tab</strong> para poder consultar <strong>on line</strong> las características de la transacci&oacute;n en el sistema de Todo Pago.
+El plug in crea un nuevo <strong>tab</strong> para poder consultar <strong>on line</strong> las características de la transacci&oacuter;n en el sistema de Todo Pago.
 ![imagen consulta de trnasacciones](https://raw.githubusercontent.com/TodoPago/imagenes/master/README.img/opencart_statusdelaoperacion.PNG)<br />
 [<sub>Volver a inicio</sub>](#inicio)
+
+<a name="devoluciones"></a>
+## devoluciones
+En la pestaña de status de las operaciones, en la tabla de operaciones, la ultima columna de utiliza para realizar operaciones online. Solo debe hacer click en la orden que de desea devolver y en un pop-up de colocara el monto que se desea devolver. A continuación se vera un mensaje de éxito o error según corresponda y sera agregada una nueva operación en el panel de devoluciones de OpenCart.
+
+![imagen consulta de trnasacciones](https://raw.githubusercontent.com/TodoPago/imagenes/master/opencart15/Seleccion_005.png)
+
+
+
+[<sub>Volver a inicio</sub>](#inicio)
+
+
+
 
 <a name="tablas"></a>
 ## Tablas de Referencia

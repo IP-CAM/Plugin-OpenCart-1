@@ -1,5 +1,6 @@
 <?php
 require_once DIR_APPLICATION.'controller/todopago/vendor/autoload.php';
+require_once DIR_APPLICATION.'../admin/resources/todopago/todopago_ctes.php';
 require_once DIR_APPLICATION.'controller/todopago/ControlFraude/includes.php';
 require_once DIR_APPLICATION.'../admin/resources/todopago/Logger/loggerFactory.php';
 
@@ -48,8 +49,8 @@ class ControllerPaymentTodopago extends Controller {
             $paramsSAR = $this->getPaydata();
             //$payData['canaldeingresodelpedido'] = $this->config->get('canaldeingresodelpedido');
             $authorizationHTTP = $this->get_authorizationHTTP();
-            $mode = ($this->get_mode()=="Test")?"test":"prod";
-            $this->logger->debug("Authorization: ".$authorizationHTTP);
+            $mode = ($this->get_mode()==MODO_TEST)?"test":"prod";
+            $this->logger->debug("first step Authorization: ".json_encode($authorizationHTTP));
             $this->logger->debug('Mode: '.$mode);
             try{
                 $this->callSAR($authorizationHTTP, $mode, $paramsSAR);
@@ -134,8 +135,9 @@ class ControllerPaymentTodopago extends Controller {
             $this->logger->info("second step");
 
             $authorizationHTTP = $this->get_authorizationHTTP();
+            $this->logger->debug ( "second_step_todopago():authorizationHTTP: ".json_encode($authorizationHTTP));
 
-            $mode = ($this->get_mode()=="Test")?"test":"prod";
+            $mode = ($this->get_mode()==MODO_TEST)?"test":"prod";
             $this->load->model('checkout/order');
             $requestKey = $this->model_todopago_transaccion->getRequestKey($this->order_id);
             $optionsAnswer = array(
@@ -255,19 +257,40 @@ class ControllerPaymentTodopago extends Controller {
     }
 
     private function get_authorizationHTTP(){
-        if($this->get_mode()=="Test"){
-            return  json_decode(html_entity_decode($this->config->get('todopago_authorizationHTTPtest')),TRUE);
-        } else {
-            return  json_decode(html_entity_decode($this->config->get('todopago_authorizationHTTPproduccion')),TRUE);
-        }
+    	$data;
+    	var_dump($this->get_mode ());
+    	if ($this->get_mode () == MODO_TEST) {
+    		$data =  $this->config->get ( 'todopago_authorizationHTTPtest' );
+    	}else {
+    		$data =  $this->config->get ( 'todopago_authorizationHTTPproduccion' );
+    	}
+    	
+    	$data = html_entity_decode ($data);
+    	
+    	$decoded_json = json_decode ($data, TRUE);
+    	if (json_last_error() === JSON_ERROR_NONE) {
+    		// JSON is valid
+    		return $decoded_json;
+    	}else{
+    	
+    		$decoded_array['Authorization'] = $data;
+    		return $decoded_array;
+    	}
+    	/*  Old source code
+    	 if ($this->get_mode () == "test") {
+    	return json_decode ( html_entity_decode ( $this->config->get ( 'todopago_authorizationHTTPtest' ) ), TRUE );
+    	} else {
+    	return json_decode ( html_entity_decode ( $this->config->get ( 'todopago_authorizationHTTPproduccion' ) ), TRUE );
+    	}*/
     }
 
     private function get_mode(){
-        return html_entity_decode($this->config->get('todopago_modotestproduccion'));
+    	//$this->logger->debug("get_mode(): " .mb_strtolower(html_entity_decode($this->config->get('todopago_modotestproduccion'))));
+        return mb_strtolower( html_entity_decode($this->config->get('todopago_modotestproduccion')));
     }
 
     private function get_id_site(){
-        if($this->get_mode()=="Test"){
+        if($this->get_mode()==MODO_TEST){
             return html_entity_decode($this->config->get('todopago_idsitetest'));
         }else{
             return html_entity_decode($this->config->get('todopago_idsiteproduccion'));
@@ -275,7 +298,7 @@ class ControllerPaymentTodopago extends Controller {
     }
 
     private function get_security_code(){
-        if($this->get_mode()=="Test"){
+        if($this->get_mode()==MODO_TEST){
             return html_entity_decode($this->config->get('todopago_securitytest'));
         }else{
             return html_entity_decode($this->config->get('todopago_securityproduccion'));
@@ -286,7 +309,7 @@ class ControllerPaymentTodopago extends Controller {
         $this->load->model('checkout/order');
         $this->order= $this->model_checkout_order->getOrder($this->order_id);
         $this->logger->debug("order_info: ".json_encode($this->order));
-        $mode = ($this->get_mode()=="Test")?"test":"prod";
+        $mode = ($this->get_mode()==MODO_TEST)?"test":"prod";
         $this->logger = loggerFactory::createLogger(true, $mode, $this->order['customer_id'], $this->order['order_id']);
     }
 }

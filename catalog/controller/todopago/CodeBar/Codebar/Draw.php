@@ -5,14 +5,14 @@ include_once('Color.php');
 
 class Draw {
 
-    private $w, $h;         
-    private $color;         
-    private $filename;      
-    private $im;            
-    private $barcode;       
-    private $dpi;           
-    private $rotateDegree;  
-	
+    private $w, $h;
+    private $color;
+    private $filename;
+    private $im;
+    private $barcode;
+    private $dpi;
+    private $rotateDegree;
+
     public function __construct($filename = null, Color $color) {
         $this->im = null;
         $this->setFilename($filename);
@@ -75,7 +75,7 @@ class Draw {
 
     public function finish($quality = 100) {
         $drawer = null;
-		
+
         $im = $this->im;
         if ($this->rotateDegree > 0.0) {
             if (function_exists('imagerotate')) {
@@ -84,7 +84,7 @@ class Draw {
                 throw new Exception('The method imagerotate doesn\'t exist on your server. Do not use any rotation.');
             }
         }
-		
+
         ob_start();
         imagepng($im);
         $bin = ob_get_contents();
@@ -96,7 +96,7 @@ class Draw {
             echo $bin;
         } else {
             file_put_contents($this->filename, $bin);
-        }		
+        }
     }
 
     private function setInternalProperties(&$bin) {
@@ -106,13 +106,13 @@ class Draw {
             $this->internalSetDPI($bin, $chunks);
             $this->internalSetC($bin, $chunks);
         }
-    }	
-	
+    }
+
     private function detectChunks($bin) {
         $data = substr($bin, 8);
         $chunks = array();
         $c = strlen($data);
-        
+
         $offset = 0;
         while ($offset < $c) {
             $packed = unpack('Nsize/a4chunk', $data);
@@ -124,7 +124,7 @@ class Draw {
             $offset += $jump;
             $data = substr($data, $jump);
         }
-        
+
         return $chunks;
     }
 
@@ -225,7 +225,7 @@ class Draw {
     private static function crc($data, $len) {
         return self::update_crc(-1, $data, $len) ^ -1;
     }
-	
+
     public function drawException($exception) {
         $this->w = 1;
         $this->h = 1;

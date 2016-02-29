@@ -14,21 +14,21 @@ class Barcode {
     private $checksum;
     private $ratio;
 
-    protected $colorFg, $colorBg;       
-    protected $scale;                   
-    protected $offsetX, $offsetY;       
-    protected $labels = array();        
-    protected $pushLabel = array(0, 0); 
+    protected $colorFg, $colorBg;
+    protected $scale;
+    protected $offsetX, $offsetY;
+    protected $labels = array();
+    protected $pushLabel = array(0, 0);
 
-    protected $thickness;       
-    protected $keys, $code;     
-    protected $positionX;       
-    protected $font;            
-    protected $text;            
-    protected $checksumValue;   
-    protected $displayChecksum; 
-    protected $label;           
-    protected $defaultLabel;    
+    protected $thickness;
+    protected $keys, $code;
+    protected $positionX;
+    protected $font;
+    protected $text;
+    protected $checksumValue;
+    protected $displayChecksum;
+    protected $label;
+    protected $defaultLabel;
 
     public function __construct() {
 		$this->setOffsetX(0);
@@ -50,16 +50,16 @@ class Barcode {
 
         $this->keys = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
         $this->code = array(
-            '00110',   
-            '10001',   
-            '01001',   
-            '11000',   
-            '00101',   
-            '10100',   
-            '01100',   
-            '00011',   
-            '10010',   
-            '01010'    
+            '00110',
+            '10001',
+            '01001',
+            '11000',
+            '00101',
+            '10100',
+            '01100',
+            '00011',
+            '10010',
+            '01010'
         );
 
         $this->setChecksum(false);
@@ -113,7 +113,7 @@ class Barcode {
 
     public function parse($text) {
         $this->text = $text;
-        $this->checksumValue = false; 
+        $this->checksumValue = false;
         $this->validate();
 
         $this->addDefaultLabel();
@@ -212,7 +212,7 @@ class Barcode {
 
         $this->scale = $scale;
     }
-	
+
     public function getOffsetX() {
         return $this->offsetX;
     }
@@ -225,7 +225,7 @@ class Barcode {
 
         $this->offsetX = $offsetX;
     }
-	
+
     public function getOffsetY() {
         return $this->offsetY;
     }
@@ -302,11 +302,11 @@ class Barcode {
     }
 
     protected function drawFilledRectangle($im, $x1, $y1, $x2, $y2, $color = self::COLOR_FG) {
-        if ($x1 > $x2) { 
+        if ($x1 > $x2) {
             $x1 ^= $x2 ^= $x1 ^= $x2;
         }
 
-        if ($y1 > $y2) { 
+        if ($y1 > $y2) {
             $y1 ^= $y2 ^= $y1 ^= $y2;
         }
 
@@ -352,7 +352,7 @@ class Barcode {
 
         return $labels;
     }
-	
+
     public function setChecksum($checksum) {
         $this->checksum = (bool)$checksum;
     }
@@ -401,7 +401,7 @@ class Barcode {
         $h += $this->thickness;
 
         $labels = $this->getBiggestLabels(false);
-        $pixelsAround = array(0, 0, 0, 0); 
+        $pixelsAround = array(0, 0, 0, 0);
         if (isset($labels[Label::POSITION_TOP])) {
             $dimension = $labels[Label::POSITION_TOP]->getDimension();
             $pixelsAround[0] += $dimension[1];

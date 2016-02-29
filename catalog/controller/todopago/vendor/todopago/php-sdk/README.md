@@ -17,8 +17,7 @@ Modulo para conexión con gateway de pago Todo Pago
 
 <a name="instalacion"></a>		
 ## Instalación		
-Se debe descargar la última versión del SDK desde el botón Download ZIP, branch master.		
-Una vez descargado y descomprimido, debe incluirse el archivo Sdk.php que se encuentra en la carpeta /TodoPago/lib como librería dentro del proyecto.		
+Se debe descargar la última versión del SDK desde el botón Download ZIP, branch master.
 <br />		
 
 También se puede realizar la instalación a través de Composer.<br/>

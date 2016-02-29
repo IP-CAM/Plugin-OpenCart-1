@@ -9,36 +9,36 @@
      <?php if ($need_upgrade) { ?>
      <p class="important-message">Usted ha subido una nueva versión del m&oacute;dulo, para su correcto funcionamiento debe actualizarlo haciendo click en el botón "Upgrade"</p>
      <?php } ?>
-      <div id="htabs" class="htabs">
-        <a href="#tab-general">GENERAL</a>
-        <a href="#tab-test">AMBIENTE DEVELOPERS</a>
-        <a href="#tab-produccion">AMBIENTE PRODUCCI&Oacute;N</a>
-        <a href="#tab-estadosdelpedido">ESTADOS DEL PEDIDO</a>
-        <a href="#tab-status">Status de las Operaci&oacute;n</a>
-      </div>
-      <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form">
-       <input type="hidden" name="upgrade" value="<?php echo $need_upgrade ?>">
-       <input type="hidden" name="todopago_version" value="<?php echo $installed_version; ?>">
-        <!-- TAB GENERAL -->
-        <div id="tab-general">
-          <table class="form">
-            <tr>
-              <td>Enabled</td>
-              <td><select name="todopago_status">
-                <?php if ($todopago_status) { ?>
-                <option value="1" selected="selected"><?php echo $text_enabled; ?></option>
-                <option value="0"><?php echo $text_disabled; ?></option>
-                <?php } else { ?>
-                <option value="1"><?php echo $text_enabled; ?></option>
-                <option value="0" selected="selected"><?php echo $text_disabled; ?></option>
-                <?php } ?>
-              </select></td><td><em>Activa y desactiva el módulo de pago</em></td>
-            </tr>
-            <tr>
-              <td>Segmento del Comercio</td>
-              <td>
-                <select name="todopago_segmentodelcomercio">
-                  <option value="Retail" <?php if ($todopago_segmentodelcomercio=="Retail") echo "selected"?> >Retail</option>
+     <div id="htabs" class="htabs">
+      <a href="#tab-general">GENERAL</a>
+      <a href="#tab-test">AMBIENTE DEVELOPERS</a>
+      <a href="#tab-produccion">AMBIENTE PRODUCCI&Oacute;N</a>
+      <a href="#tab-estadosdelpedido">ESTADOS DEL PEDIDO</a>
+      <a href="#tab-status">Status de las Operaci&oacute;n</a>
+    </div>
+    <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form">
+     <input type="hidden" name="upgrade" value="<?php echo $need_upgrade ?>">
+     <input type="hidden" name="todopago_version" value="<?php echo $installed_version; ?>">
+     <!-- TAB GENERAL -->
+     <div id="tab-general">
+      <table class="form">
+        <tr>
+          <td>Enabled</td>
+          <td><select name="todopago_status">
+            <?php if ($todopago_status) { ?>
+            <option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+            <option value="0"><?php echo $text_disabled; ?></option>
+            <?php } else { ?>
+            <option value="1"><?php echo $text_enabled; ?></option>
+            <option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+            <?php } ?>
+          </select></td><td><em>Activa y desactiva el módulo de pago</em></td>
+        </tr>
+        <tr>
+          <td>Segmento del Comercio</td>
+          <td>
+            <select name="todopago_segmentodelcomercio">
+              <option value="Retail" <?php if ($todopago_segmentodelcomercio=="Retail") echo "selected"?> >Retail</option>
                   <!--<option value="Ticketing" <?php if ($todopago_segmentodelcomercio=="Ticketing") echo "selected"?> >Ticketing</option>
                   <option value="Services" <?php if ($todopago_segmentodelcomercio=="Services") echo "selected"?> >Service</option>
                   <option value="Digital Goods" <?php if ($todopago_segmentodelcomercio=="Digital Goods") echo "selected"?> >Digital Goods</option>
@@ -60,7 +60,7 @@
             </tr>-->
             <tr>
               <td>Dead Line</td>
-              <td><input type="number" name="todopago_deadline" min=0 value="<?php echo $deadline; ?>"/></td>
+              <td><input type="number" name="todopago_deadline" min=0 value="<?php echo $todopago_deadline; ?>"/></td>
               <td><em>d&iacute;as m&aacute;ximos para la entrega</em></td>
             </tr>
 
@@ -84,7 +84,7 @@
             <tr>
               <td>Authorization HTTP</td>
               <td><input type="text" name="todopago_authorizationHTTPtest" value="<?php echo $todopago_authorizationHTTPtest; ?>" size="25" /></td>
-              <td><em>se deben para datos en formato json. ejemplo: { "Authorization":"PRISMA 912EC803B2CE49E4A541068D495AB570"}</em></td>
+              <td><em>Authorization o Api Key para el hearder. Ejemplo: <b>PRISMA 912EC803B2CE49E4A541068D12345678</b></em></td>
             </tr>
             <tr>
               <td>Id Site Todo Pago</td>
@@ -106,7 +106,7 @@
             <tr>
               <td>Authorization HTTP</td>
               <td><input type="text" name="todopago_authorizationHTTPproduccion" value="<?php echo $todopago_authorizationHTTPproduccion; ?>" size="25" /></td>
-              <td><em>se deben para datos en formato json. ejemplo: { "Authorization":"PRISMA 912EC803B2CE49E4A541068D495AB570"}</em></td>
+              <td><em>Authorization o Api Key para el hearder. Ejemplo: <b>PRISMA 912EC803B2CE49E4A541068D12345678</b></em></td>
             </tr>
             <tr>
               <td>Id Site Todo Pago</td>
@@ -191,12 +191,12 @@
             <script type="text/javascript">
               $(document).ready(function() {
                 var valore = '<?php echo $orders_array ?>';
-                  console.log(valore);
+                console.log(valore);
                 var tabla_db = '';
                 valore_json = jQuery.parseJSON(valore);
                 console.log(valore_json);
                 jQuery.each(valore_json, function(key, value){
-                    console.log(value);
+                  console.log(value);
                   tabla_db += "<tr>";
                   tabla_db +="<th><a onclick='verstatus("+value.order_id+")'>"+value.order_id+"</a></th>";
                   tabla_db +="<th>"+value.date_added+"</th>";
@@ -204,6 +204,7 @@
                   tabla_db +="<th>"+value.lastname+"</th>";
                   tabla_db +="<th>"+value.store_name+"</th>";
                   tabla_db +="<th>$"+value.total+"</th>";
+                  tabla_db += "<th><a onclick='devolver(" + value.order_id + ")' style='cursor:pointer'>Devolver</a></th>";
                   tabla_db +="</tr>";
                 });
 
@@ -238,6 +239,7 @@
                   <th>Apellido</th>
                   <th>Tienda</th>
                   <th>Total</th>
+                  <th>Devolución</th>
                 </tr>
               </thead>
 
@@ -249,6 +251,7 @@
                   <th>Apellido</th>
                   <th>Tienda</th>
                   <th>Total</th>
+                  <th>Devolución</th>
                 </tr>
               </tfoot>
 
@@ -262,7 +265,21 @@
       </div>
     </div>
 
-    <script type="text/javascript"><!--
+    <script type="text/javascript">
       $('#htabs a').tabs();
-      //--></script> 
-      <?php echo $footer; ?>
+      function devolver(order_id){
+       var monto = prompt("Monto a Devolver: ", "ej: 1.23");
+       url_devolver = '<?php echo $this->url->link("payment/todopago/get_devolver&token=".$this->session->data["token"]); ?>';
+      
+                       
+               $('#content').css('cursor', 'progress');
+               $.post(url_devolver,{order_id: order_id, monto: monto}, llegadaDatosDevolucion );
+               return false;
+             }
+
+             function llegadaDatosDevolucion(datos) {
+              $('#content').css('cursor', 'auto');
+              alert(datos);
+            }
+          </script> 
+          <?php echo $footer; ?>
