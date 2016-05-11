@@ -77,8 +77,10 @@ public function setLogger($logger){
     
     public function getProvinceCode($ocCode, $order_id){
         $csCode = $this->db->query("select z.cs_code from ".DB_PREFIX."zone z inner join ".DB_PREFIX."country c on  z.country_id = c.country_id where c.iso_code_2 = 'AR' and code = '".$ocCode."';");
-        
-        return $csCode->row['cs_code'];
+        if (isset($csCode->row['cs_code'])){
+         
+        return $csCode->row['cs_code']; 
+        }
     }
     
     public function getQtyOrders($customerId){

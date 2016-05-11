@@ -104,8 +104,6 @@ class ControllerPaymentTodopago extends Controller{
                     case "1.5.0":
                     $this->logger->debug("upgrade to v1.5.1");
                     case "1.5.1":
-                    $this->logger->debug("upgrade to v1.6.0");
-                    case "1.6.0":
                     $this->logger->info("Plugin instalado/upgradeado");
                     try{
                         $this->model_payment_todopago->updateVersion($actualVersion); //Registra en la tabla el nro de Versión a la que se ha actualizado
@@ -236,6 +234,13 @@ class ControllerPaymentTodopago extends Controller{
          $this->data['canaldeingresodelpedido'] = $this->config->get('canaldeingresodelpedido');
      }
 
+     if (isset($this->request->post['todopago_form'])){
+         $this->data['todopago_form'] = $this->request->post['todopago_form'];
+     } else {
+         $this->data['todopago_form'] = $this->config->get('todopago_form');
+     }
+
+
      if (isset($this->request->post['todopago_deadline'])){
          $this->data['todopago_deadline'] = $this->request->post['todopago_deadline'];
      } else {
@@ -345,7 +350,8 @@ class ControllerPaymentTodopago extends Controller{
     if (!empty($status['Operations'])){
         foreach ($status['Operations'] as $key => $value) {
            if (! is_array ( $value )) {
-              $rta .= "$key: $value \n";
+              $value_json = json_encode($value);
+              $rta .= "$key: $value_json \n";
           }
       }
   } else {
@@ -365,46 +371,60 @@ echo($rta);
 }
 
 public function get_devolver(){
-  $monto = $_POST["monto"];
+    $monto = $_POST["monto"];
     $order_id = $_POST['order_id'];
     $transaction_row = $this->db->query("SELECT request_key FROM `".DB_PREFIX."todopago_transaccion` WHERE id_orden=$order_id");
     $mode = $this->get_mode();
-    $authorizationHTTP = $this->get_authorizationHTTP();
+    $authorizationHTTP = $this->get_authorizationHTTP()["Authorization"];
     $request_key = $transaction_row->row["request_key"];
+    
+    if ($this->get_mode() == "test"){
+            $rest_end_point = "https://developers.todopago.com.ar/t/1.1/api/Authorize";
+        }
+        else{
 
-    if(empty($request_key)){
-        echo "No es posible hacer devolución sobre esa transacción";
+
+            $rest_end_point = "https://api.todopago.com.ar/t/1.1/api/Authorize";
+        }    
+
+    $data = array(
+        "RequestType"=>"ReturnRequest",
+        "Security"=>$this->get_security_code(),
+        "RequestKey"=>$request_key,
+        "Merchant"=>$this->get_id_site(),
+        "Amount"=> $monto
+        );
+
+    $data_string = json_encode($data);                                                                                   
+
+    $ch = curl_init($rest_end_point);                                                                      
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);                                                                  
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);                                                                      
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(                                                                          
+        'Content-Type: application/json',                                                                                
+        "Authorization: $authorizationHTTP")                                                                       
+    );                                                                                                                   
+
+    $result = curl_exec($ch);
+
+    $rta = json_decode($result);
+    $this->logger->debug("get_devolver(): (data)".json_encode($data));
+    $this->logger->debug("get_devolver(".$rest_end_point."): ".$result);
+
+    echo ($rta->ReturnResponse->StatusMessage);
+    echo "\n\r";
+
+    if($rta->ReturnResponse->StatusCode==2011){
+        $this->load->model("sale/return");
+        $this->model_sale_return->addReturn($this->getReturnValues($order_id, $rta, $data["Amount"]));
+
+              
+        echo "DEVOLUCION REALIZADA";
     }else{
-        try{
-            $connector = new TodoPago\Sdk($authorizationHTTP, $mode);
-            $options = array(
-                "Security" => $this->get_security_code(), // API Key del comercio asignada por TodoPago 
-                "Merchant" => $this->get_id_site(), // Merchant o Nro de comercio asignado por TodoPago
-                "RequestKey" => $request_key, // RequestKey devuelto como respuesta del servicio SendAutorizeRequest
-                "AMOUNT" => $monto // Opcional. Monto a devolver, si no se envía, se trata de una devolución total
-                );
-            
-            $this->logger->debug(json_encode($options));
-            $resp = $connector->returnRequest($options);
-            $this->logger->debug(json_encode($resp));
+        echo "NO SE PUDO REALIZAR DEVOLUCION INTENTE MAS TARDE";
+    }       
 
-            if($resp["StatusCode"]=="2011"){
-              $this->load->model("sale/return");
-              $this->model_sale_return->addReturn($this->getReturnValues($order_id, $resp, $options["AMOUNT"]));
-              
-              echo ("La devolución ha sido efectuada con éxito");
-              
-              
-            }else{
-              echo $resp["StatusMessage"];
-
-            }
-            
-        }
-        catch(Exception $e){
-            echo json_encode($e);
-        }
-    } 
 }
 
 private function get_authorizationHTTP(){

@@ -126,9 +126,9 @@
                                     <br/>
                                     <br/>
                                     <label class="control-label">Contrase&ntilde;a</label>
-                                    <input id="pass" class="form-control" name="pass" type="password" value="" placeholder="Contrase&ntilde;a" /> </br>
-                                    <button id="confirm_test" style="margin-top:20%;" class="btn-config-credentials btn btn-primary">Acceder</button>
-                                    <button id="cancel-test" style="margin-left:10%;" class="btn-config-credentials btn btn-danger" >Cancelar</button>
+                                    <input id="pass" class="form-control" name="pass" type="password" value="" placeholder="Contrase&ntilde;a" />
+                                    <button id="confirm_test" style="margin:20%;" class="btn-config-credentials btn btn-primary">Acceder</button>
+                                    <button id="cancel" style="margin:20%;" class="btn-config-credentials btn btn-danger">Cancelar</button>
                                 </div>
                             </div>
                         </div>
@@ -175,9 +175,8 @@
                                     <br/>
                                     <label class="control-label">Contrase&ntilde;a</label>
                                     <input id="pass_prod" class="form-control" name="pass" type="password" value="" placeholder="Contrase&ntilde;a" />
-                                    </br>
-                                    <button id="confirm_prod" style="margin-top:20%;" class="btn-config-credentials btn btn-primary">Acceder</button>
-                                    <button id="cancel-prod" style="margin:10%;" class="btn-config-credentials btn btn-danger">Cancelar</button>
+                                    <button id="confirm_prod" style="margin:20%;" class="btn-config-credentials btn btn-primary">Acceder</button>
+                                    <button id="cancel" style="margin:20%;" class="btn-config-credentials btn btn-danger">Cancelar</button>
                                 </div>
                             </div>
                         </div>
@@ -386,18 +385,12 @@
                 $('.popup-overlay').fadeOut('slow');
                 return false;
             });
-            $("#cancel-test").click(function(){    
-                $('#popup').fadeOut('slow');
-                $('.popup-overlay').fadeOut('slow');
-                return false;
-            });         
-
 
             $('#confirm_prod').click(function() {
 
                 $.post("view/template/payment/todopago_credentials.php", {
-                    mail: $("#mail_prod").val(),
-                    pass: $("#pass_prod").val(),
+                    mail: $("#mail").val(),
+                    pass: $("#pass").val(),
                     tab: "prod"
                 }, function(data) {
                   json_data = JSON.parse(data);
@@ -407,13 +400,7 @@
 
                 });
 
-                $('#popup_prod').fadeOut('slow');
-                $('.popup-overlay').fadeOut('slow');
-                return false;
-            });
-
-            $("#cancel-prod").click(function(){    
-                $('#popup_prod').fadeOut('slow');
+                $('#popup').fadeOut('slow');
                 $('.popup-overlay').fadeOut('slow');
                 return false;
             });

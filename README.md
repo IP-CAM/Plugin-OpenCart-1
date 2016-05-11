@@ -7,10 +7,18 @@ Plug in para la integración con gateway de pago <strong>Todo Pago</strong>
 - [Instalación](#instalacion)
 - [Configuración](#configuracion)
  - [Configuración plug in](#confplugin)
-- [Datos adiccionales para prevención de fraude](#PrevencionFraude)
-- [Consulta de transacciones](#constrans)
-- [Devoluciones](#devoluciones)
+ - [Formulario Hibrido](#formHibrido)
+ - [Obtener datos de configuracion](#getcredentials)
+ - [Nuevas columnas y atributos](#tca)
+- [Prevencion de Fraude](#cybersource)
+ - [Consideraciones generales](#cons_generales)
+ - [Consideraciones para vertical retail](#cons_retail)
+ - [Datos adiccionales para prevención de fraude](#prevfraudedatosadicionales) 
+- [Características](#features) 
+ - [Consulta de transacciones](#constrans)
+ - [Devoluciones](#devoluciones)
 - [Tablas de referencia](#tablas)
+- [Versiones disponibles](#availableversions)
 
 [](#consideracionesgenerales)
 ## Consideraciones Generales
@@ -55,6 +63,23 @@ Descomentar: <em>extension=php_soap.dll</em> del php.ini, ya que para la conexi�
 Una vez instalado el plug in, ir a 'extensions->payments' y ir a la opción Todo Pago, hacer click en <em>edit</em>, para comenzar a configurar.
 Para llegar al menu de configuración ir a: <em>System->Configuration</em> y seleccionar Paymenth Method en el menú izquierdo. . La configuracion del Plug in esta dividido en 5 solapas (GENERAL, AMBIENTE DEVELOPERS, AMBIENTE PRODUCCION, ESTADO DEL PEDIDO) y una solapa adiccional (Status de la Operación) que se utiliza para ver el estado de la orden (transacción) de manera on line.
 ![imagen de solapas de configuracion](https://raw.githubusercontent.com/TodoPago/imagenes/master/README.img/opencart1.5_pgv1.0.1/conf_solapas.PNG)
+
+<sub><em>Menú principal</em></sub>
+
+<a name="configuracion"></a>
+##Configuración
+
+[Formulario Hibrido](#formHibrido).
+<a name="formHibrido"></a>
+####Formulario Híbrido
+En la versión 1.7 del Plugin se incluyen dos tipos de formularios de pago, redirección y Formulario Híbrido (embebido en el e commerce). Para utilizar este último se debe seleccionar Híbrido en la configuración geneeral delPlugin. 
+![imagen de solapas de configuracion](https://raw.githubusercontent.com/TodoPago/imagenes/master/opencart15/Selecci%C3%B3n_014.png)
+
+[Obtener datos de configuracion](#getcredentials).
+<a name="getcredentials"></a>
+####Obtener datos de configuracion
+En el popup loguearse con el mail y password de Todopago. Los datos se cargaran automaticamente en los campos Authorization HTTP y Id Site Todo Pago code en el ambiente correspondiente (Desarrollo o produccion ) y solo hay que hacer click en el boton guardar datos y listo.
+![imagen de solapas de configuracion](https://raw.githubusercontent.com/TodoPago/imagenes/master/opencart15/Selecci%C3%B3n_013.png)
 
 <sub><em>Menú principal</em></sub>
 

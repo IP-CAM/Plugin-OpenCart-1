@@ -54,7 +54,7 @@ class ModelTodopagoTransaccion extends Model {
         if ($this->getStep($orderId) == self::FIRST_STEP){
             $requestKey = isset($responseSAR['RequestKey'])? $responseSAR['RequestKey']:null;
             $publicRequestKey = isset($responseSAR['PublicRequestKey'])? $responseSAR['PublicRequestKey']:null;
-            $query = "UPDATE ".DB_PREFIX."todopago_transaccion SET first_step = '".$datetime->format("Y-m-d H:i:s")."', params_SAR = '".json_encode($paramsSAR)."', response_SAR = '".json_encode($responseSAR)."', request_key = '".$requestKey."', public_request_key = '".$publicRequestKey."' WHERE id_orden = ".$orderId;
+            $query = "UPDATE ".DB_PREFIX."todopago_transaccion SET first_step = '".$datetime->format("Y-m-d H:i:s")."', params_SAR = '".$this->db->escape(json_encode($paramsSAR))."', response_SAR = '".$this->db->escape(json_encode($responseSAR))."', request_key = '".$requestKey."', public_request_key = '".$publicRequestKey."' WHERE id_orden = ".$orderId;
             $this->db->query($query);
             return $query;
         }
@@ -67,7 +67,7 @@ class ModelTodopagoTransaccion extends Model {
         $datetime = new DateTime('NOW');
         if ($this->getStep($orderId) == self::SECOND_STEP){
             $answerKey = isset($paramsGAA['AnswerKey'])? $paramsGAA['AnswerKey']:null;
-            $query = "UPDATE ".DB_PREFIX."todopago_transaccion SET second_step = '".$datetime->format("Y-m-d H:i:s")."', params_GAA = '".json_encode($paramsGAA)."', response_GAA = '".json_encode($responseGAA)."', answer_key = '".$answerKey."' WHERE id_orden = ".$orderId;
+            $query = "UPDATE ".DB_PREFIX."todopago_transaccion SET second_step = '".$datetime->format("Y-m-d H:i:s")."', params_GAA = '".$this->db->escape(json_encode($paramsGAA))."', response_GAA = '".$this->db->escape(json_encode($responseGAA))."', answer_key = '".$answerKey."' WHERE id_orden = ".$orderId;
             $this->db->query($query);
             return $query;
         }

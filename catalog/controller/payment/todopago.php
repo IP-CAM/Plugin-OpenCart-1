@@ -14,6 +14,7 @@ class ControllerPaymentTodopago extends Controller {
     }
 
     protected function index() {
+
         $this->language->load('payment/todopago');
         $this->load->model('todopago/transaccion');
 
@@ -26,10 +27,18 @@ class ControllerPaymentTodopago extends Controller {
         if ($order_info) {
             $this->data['order_id'] = $order_info['order_id'];
 
-            if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/todopago.tpl')){
-                $this->template = $this->config->get('config_template') . '/template/payment/todopago.tpl';
-            } else {
-                $this->template = 'default/template/payment/todopago.tpl';
+            if($this->config->get('todopago_form')=="hibrid"){
+                if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/todopago.tpl')){
+                    $this->template = $this->config->get('config_template') . '/template/payment/todopago.tpl';
+                } else {
+                    $this->template = 'default/template/payment/todopago.tpl';
+                }
+            }else{
+                if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/todopago_redirect.tpl')){
+                    $this->template = $this->config->get('config_template') . '/template/payment/todopago_redirect.tpl';
+                } else {
+                    $this->template = 'default/template/payment/todopago_redirect.tpl';
+                }
             }
             $this->data['action'] = $this->config->get('config_url')."index.php?route=payment/todopago/first_step_todopago";
             $this->render();
@@ -38,7 +47,7 @@ class ControllerPaymentTodopago extends Controller {
 
     public function first_step_todopago()
     {
-        $this->order_id = $_POST['order_id'];
+        $this->order_id = $_REQUEST['order_id'];
         $this->logger->debug("order_id, entrda fstST: ".$this->order_id);
         
         $this->prepareOrder();
@@ -112,8 +121,8 @@ class ControllerPaymentTodopago extends Controller {
                     $query = $this->model_todopago_transaccion->recordFirstStep($this->order_id, $paramsSAR, $rta_first_step, $rta_first_step['RequestKey'], $rta_first_step['PublicRequestKey']);
                     $this->logger->debug('query recordFiersStep(): '.$query);
                     $this->model_checkout_order->update($this->order_id, $this->config->get('todopago_order_status_id_pro'), "TODO PAGO: ".$rta_first_step['StatusMessage']);
-                    header('Location: '.$rta_first_step['URL_Request']);
-                    //$this->redirect($rta_first_step['URL_Request']);
+                    if ($this->config->get('todopago_form')=="hibrid"){
+                    echo json_encode($rta_first_step);} else {header('Location: '.$rta_first_step['URL_Request']);}
                 }
                 else{
                     $query = $this->model_todopago_transaccion->recordFirstStep($this->order_id, $paramsSAR, $rta_first_step);
@@ -258,7 +267,6 @@ class ControllerPaymentTodopago extends Controller {
 
     private function get_authorizationHTTP(){
     	$data;
-    	var_dump($this->get_mode ());
     	if ($this->get_mode () == MODO_TEST) {
     		$data =  $this->config->get ( 'todopago_authorizationHTTPtest' );
     	}else {
