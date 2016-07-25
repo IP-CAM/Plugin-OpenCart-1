@@ -104,6 +104,12 @@ class ControllerPaymentTodopago extends Controller{
                     case "1.5.0":
                     $this->logger->debug("upgrade to v1.5.1");
                     case "1.5.1":
+                    $this->logger->debug("upgrade to v1.6.0");
+                    case "1.6.0":
+                    $this->logger->debug("upgrade to v1.7.0");
+                    case "1.7.0":
+                    $this->logger->debug("upgrade to v1.8.0");
+                    case "1.8.0":
                     $this->logger->info("Plugin instalado/upgradeado");
                     try{
                         $this->model_payment_todopago->updateVersion($actualVersion); //Registra en la tabla el nro de Versión a la que se ha actualizado
@@ -318,6 +324,11 @@ class ControllerPaymentTodopago extends Controller{
          $this->data['todopago_order_status_id_pro'] = $this->request->post['todopago_order_status_id_pro'];
      } else {
          $this->data['todopago_order_status_id_pro'] = $this->config->get('todopago_order_status_id_pro');
+     }
+         if (isset($this->request->post['todopago_maxinstallments'])) {
+         $this->data['todopago_maxinstallments'] = $this->request->post['todopago_maxinstallments'];
+     } else {
+         $this->data['todopago_maxinstallments'] = $this->config->get('todopago_maxinstallments');
      }
 
      $this->load->model('localisation/order_status');

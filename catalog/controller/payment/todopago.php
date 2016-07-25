@@ -243,6 +243,7 @@ class ControllerPaymentTodopago extends Controller {
         $paydata_comercial['Security'] = $this->get_security_code();
         $paydata_comercial['EncodingMethod'] = 'XML';
 
+        
         return $paydata_comercial;    
     }
 
@@ -257,7 +258,10 @@ class ControllerPaymentTodopago extends Controller {
         $paydata_operation['AMOUNT'] = number_format($this->order['total'], 2, ".", "");
         $paydata_operation['CURRENCYCODE'] = "032";
         $paydata_operation['EMAILCLIENTE'] = $this->order['email'];
-        
+        $var = $this->config->get('todopago_maxinstallments');
+         if($var != null){
+          $paydata_operation['MAXINSTALLMENTS'] = $this->config->get('todopago_maxinstallments');
+         }
         $paydata_operation = array_merge($paydata_operation, $controlFraude);
         
            $this->logger->debug("Paydata operación: ".json_encode($paydata_operation));

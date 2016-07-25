@@ -22,17 +22,25 @@
      <!-- TAB GENERAL -->
      <div id="tab-general">
       <table class="form">
-        <tr>
-          <td>Enabled</td>
-          <td><select name="todopago_status">
-            <?php if ($todopago_status) { ?>
-            <option value="1" selected="selected"><?php echo $text_enabled; ?></option>
-            <option value="0"><?php echo $text_disabled; ?></option>
-            <?php } else { ?>
-            <option value="1"><?php echo $text_enabled; ?></option>
-            <option value="0" selected="selected"><?php echo $text_disabled; ?></option>
-            <?php } ?>
-          </select></td><td><em>Activa y desactiva el módulo de pago</em></td>
+        <tr>         
+      <td>Enabled</td>
+          <td>            <select class="form-control" name="todopago_status" id="todopago_status">
+                                        <?php if ($todopago_status == 1) { ?>
+                                        <option value="1" selected="selected">
+                                            <?php echo $text_enabled; ?>
+                                        </option>
+                                        <option >
+                                            <?php echo $text_disabled; ?>
+                                        </option>
+                                        <?php } else { ?>
+                                        <option value="1">
+                                            <?php echo $text_enabled; ?>
+                                        </option>
+                                        <option value="0" selected="selected">
+                                            <?php echo $text_disabled; ?>
+                                        </option>
+                                        <?php } ?>
+                                    </select></td><td><em>Activa y desactiva el módulo de pago</em></td>
         </tr>
         <tr>
           <td>Segmento del Comercio</td>
@@ -82,9 +90,43 @@
                 </select>
               </td>
               <td><em>Debe ser cofigurado en CONFIGURACI&Oacute;N - AMBIENTE DEVELOPERS / PRODUCCION</em></td>
-            </tr>          
+            </tr>  
+                    <tr> 
+                <?php
+                $checked = $this->config->get('todopago_maxinstallments')
+                ?>
+  
+                         <td>Máximo de cuotas
+                       <?php    if (isset($checked)){ ?>
+                             
+                                   <label><input type="checkbox" id="habilitar" value="" checked="checked"> Habilitar</label>
+                             <?php }else {?>
+                              <label><input type="checkbox" id="habilitar" value=""> Habilitar</label>
+                              <?php } ?>
+                    </td>
+                                <td class="field col-sm-4">
+                                    <select name="todopago_maxinstallments" id="todopago_maxinstallments" disabled>
+                        <?php  
+                    for ($i = 0; $i <= 12; $i++) {
+              
+                                 ?>       <option value="<?php echo $i ?>"><?php echo $i ?></option> <?php
+
+                                    if ($i == $this->config->get('todopago_maxinstallments')) {
+?><script> $("select option[value=<?php echo $i ?>]").attr("selected","selected"); </script><?php
+                                            }
+
+
+                   }
+                    ?>                   
+                                    </select>
+                                </td>
+                                <td class="info-field col-sm-5"><em>* Seleccione la cantidad máxmia de cuotas</em>
+                                </td>
+                            </tr>
+
           </table> 
         </div>
+
         <!-- END TAB GENERAL-->
 
         <!-- TAB AMBIENTE TEST -->
@@ -361,7 +403,7 @@
             });
 
             $('#open_prod').click(function() {
-
+               
                 $('#popup_prod').fadeIn('slow');
                 $('.popup-overlay').fadeIn('slow');
                 $('.popup-overlay').height($(window).height());
@@ -369,13 +411,13 @@
             });
 
             $('#confirm_test').click(function() {
-
-                $.post("view/template/payment/todopago_credentials.php", {
+                $.post('view/template/payment/todopago_credentials.php', {
                     mail: $("#mail").val(),
                     pass: $("#pass").val(),
                     tab: "test"
                 }, function(data) {
-                  json_data = JSON.parse(data);
+                  console.log(data);
+                    json_data = JSON.parse(data);
                   console.log(json_data);
                   $("#header_test").val(json_data.Credentials.APIKey);
                   $("#site_id_test").val(json_data.Credentials.merchantId);
@@ -510,3 +552,31 @@
     
     .content-popup input {}
 </style>
+    
+        <script>
+
+$(document).ready(function(){
+        
+    
+      if ($('#habilitar').attr('checked')) {
+            $("#todopago_maxinstallments").removeAttr("disabled");
+                                 }else{
+                                  $("#todopago_maxinstallments").val('0');
+                                 }
+    $("#habilitar").click(function() {  
+
+if ($('#habilitar').prop('checked')) {
+
+  $("#todopago_maxinstallments").removeAttr("disabled");
+
+
+}else
+    {
+             $("#todopago_maxinstallments").prop('disabled', true);  
+             $("#todopago_maxinstallments").val('0');
+    
+    }
+     
+    });        
+    });        
+            </script>

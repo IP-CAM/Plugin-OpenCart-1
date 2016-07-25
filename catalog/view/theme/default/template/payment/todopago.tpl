@@ -15,14 +15,12 @@
 <script type="text/javascript">
 
 	function init_my_form(){
-
 		console.log("<?php echo $action ?>"+"&order_id="+"<?php echo $order_id?>");
+        $("#confirmar_pago").prop('disabled', true);
 		$.get("<?php echo $action ?>"+"&order_id="+"<?php echo $order_id?>", function(data) {
 			data_json = JSON.parse(data);
 			console.log(data_json.PublicRequestKey);
-			
-			setTimeout(todopago_init_form(), 5000);
-			setTimeout(todopago_hybrid_form(data_json.PublicRequestKey), 6000);
+			setTimeout(todopago_init_form(data_json.PublicRequestKey), 1000);
 			$("#formualrio_hibrido").show();
 			$("#confirmar_pago_view").hide();
 		});
@@ -137,7 +135,7 @@
 		var defDniType = 'DNI'
 
 		/************* CONFIGURACION DEL API ************************/
-		function todopago_init_form()
+		function todopago_init_form(security)
 		{
 			if(window.TPFORMAPI!=undefined){
 				window.TPFORMAPI.hybridForm.initForm({
@@ -151,27 +149,19 @@
 					beforeRequest: 'initLoading',
 					afterRequest: 'stopLoading'
 				});
-			}else{
-				sleep(1000);
-				todopago_init_form();
-			}
-		}
-		/************* SETEO UN ITEM PARA COMPRAR ************************/
-		function todopago_hybrid_form(security){
-			if(window.TPFORMAPI!=undefined){
-			
-				window.TPFORMAPI.hybridForm.setItem({
+                window.TPFORMAPI.hybridForm.setItem({
 					publicKey: security,
 					defaultNombreApellido: completeName,
 					defaultNumeroDoc: dni,
 					defaultMail: mail,
 					defaultTipoDoc: defDniType
 				});
-			}else{
-				sleep(1000);
-				todopago_hybrid_form(security);
+            }else{
+				setInterval(function(){todopago_init_form(); }, 1000);
+
 			}
 		}
+		
 		//callbacks de respuesta del pago
 		function validationCollector(parametros) {
 			console.log("My validator collector");
