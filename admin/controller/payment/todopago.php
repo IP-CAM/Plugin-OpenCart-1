@@ -110,6 +110,8 @@ class ControllerPaymentTodopago extends Controller{
                     case "1.7.0":
                     $this->logger->debug("upgrade to v1.8.0");
                     case "1.8.0":
+                    $this->logger->debug("upgrade to v1.8.1");
+                    case "1.8.1":
                     $this->logger->info("Plugin instalado/upgradeado");
                     try{
                         $this->model_payment_todopago->updateVersion($actualVersion); //Registra en la tabla el nro de Versión a la que se ha actualizado
@@ -386,7 +388,8 @@ public function get_devolver(){
     $order_id = $_POST['order_id'];
     $transaction_row = $this->db->query("SELECT request_key FROM `".DB_PREFIX."todopago_transaccion` WHERE id_orden=$order_id");
     $mode = $this->get_mode();
-    $authorizationHTTP = $this->get_authorizationHTTP()["Authorization"];
+    $authorizationHTTP = $this->get_authorizationHTTP();
+    $authorizationHTTP = $authorizationHTTP["Authorization"];
     $request_key = $transaction_row->row["request_key"];
     
     if ($this->get_mode() == "test"){
