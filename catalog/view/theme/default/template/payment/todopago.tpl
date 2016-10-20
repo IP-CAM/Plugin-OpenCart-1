@@ -143,7 +143,6 @@
 					callbackCustomSuccessFunction: 'customPaymentSuccessResponse',
 					callbackCustomErrorFunction: 'customPaymentErrorResponse',
 					botonPagarId: 'MY_btnConfirmarPago',
-					botonPagarConBilleteraId: 'MY_btnPagarConBilletera',
 					modalCssClass: 'modal-class',
 					modalContentCssClass: 'modal-content',
 					beforeRequest: 'initLoading',
