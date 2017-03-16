@@ -1,6 +1,7 @@
 <?php
 
-require_once dirname(__FILE__)."/log4php/Logger.php";
+//require_once DIR_APPLICATION.'../catalog/controller/todopago/vendor/autoload.php';
+require_once DIR_APPLICATION.'../catalog/controller/todopago/vendor/apache/log4php/src/main/php/Logger.php';
 
 class TodoPagoLogger {
 

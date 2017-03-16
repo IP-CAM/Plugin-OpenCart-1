@@ -26,7 +26,9 @@ class ControllerPaymentTodopago extends Controller {
 
         if ($order_info) {
             $this->data['order_id'] = $order_info['order_id'];
-
+            $this->data['completeName'] = $order_info['payment_firstname'].' '.$order_info['payment_lastname'];
+            $this->data['mail'] = $order_info['email'];
+            
             if($this->config->get('todopago_form')=="hibrid"){
                 if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/payment/todopago.tpl')){
                     $this->template = $this->config->get('config_template') . '/template/payment/todopago.tpl';
@@ -177,8 +179,8 @@ class ControllerPaymentTodopago extends Controller {
             $rta_second_step = $connector->getAuthorizeAnswer($optionsAnswer);
             $this->logger->info("response GAA: ".json_encode($rta_second_step));
             $query = $this->model_todopago_transaccion->recordSecondStep($this->order_id, $optionsAnswer, $rta_second_step);
-            $this->logger->debug("query recordSecondStep(): ".$query);
-            
+            //$this->logger->debug("query recordSecondStep(): ".$query);
+
             if(strlen($rta_second_step['Payload']['Answer']["BARCODE"]) > 0){
                 $this->showCoupon($rta_second_step);
             }

@@ -4,20 +4,61 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5c1e36c9dea41bb1b3da62afbe49603f",
+    "hash": "a17d0e9b719ead0b0c41a731d28829f2",
+    "content-hash": "34941cab567f95eede7ece925759a80e",
     "packages": [
         {
-            "name": "todopago/php-sdk",
-            "version": "V1.2.2",
+            "name": "apache/log4php",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/TodoPago/SDK-PHP.git",
-                "reference": "f23f65e7719610dc424d0dcb5e7ae2dcb175182a"
+                "url": "https://github.com/apache/logging-log4php.git",
+                "reference": "cac428b6f67d2035af39784da1d1a299ef42fcf2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TodoPago/SDK-PHP/zipball/f23f65e7719610dc424d0dcb5e7ae2dcb175182a",
-                "reference": "f23f65e7719610dc424d0dcb5e7ae2dcb175182a",
+                "url": "https://api.github.com/repos/apache/logging-log4php/zipball/cac428b6f67d2035af39784da1d1a299ef42fcf2",
+                "reference": "cac428b6f67d2035af39784da1d1a299ef42fcf2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.7"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/main/php/"
+                ]
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "A versatile logging framework for PHP",
+            "homepage": "http://logging.apache.org/log4php/",
+            "keywords": [
+                "log",
+                "logging",
+                "php"
+            ],
+            "support": {
+                "issues": "https://issues.apache.org/jira/browse/LOG4PHP",
+                "source": "https://svn.apache.org/repos/asf/logging/log4php",
+                "email": "log4php-user@logging.apache.org"
+            },
+            "time": "2012-10-26 09:13:25"
+        },
+        {
+            "name": "todopago/php-sdk",
+            "version": "V1.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/TodoPago/SDK-PHP.git",
+                "reference": "42f17d2915106e56b32334db5cfde9b3bcc04750"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/TodoPago/SDK-PHP/zipball/42f17d2915106e56b32334db5cfde9b3bcc04750",
+                "reference": "42f17d2915106e56b32334db5cfde9b3bcc04750",
                 "shasum": ""
             },
             "require": {
@@ -31,7 +72,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "SDK para TodoPago",
-            "time": "2015-10-13 16:18:08"
+            "time": "2016-12-22 15:55:54"
         }
     ],
     "packages-dev": [],

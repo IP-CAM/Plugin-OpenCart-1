@@ -112,17 +112,9 @@ abstract class Controlfraude{
 		$subst = "";
 		$string = preg_replace($re, $subst, $string);
 
-		$replace = array("!","'","\'","\"","  ","$","\\","\n","\r",
+		$replace = array("#","&","!","'","\'","\"","  ","$","\\","\n","\r",
 			'\n','\r','\t',"\t","\n\r",'\n\r','&nbsp;','&ntilde;',".,",",.","+", "%", "-", ")", "(", "°");
 		$string = str_replace($replace, '', $string);
-
-		$cods = array('\u00c1','\u00e1','\u00c9','\u00e9','\u00cd','\u00ed','\u00d3','\u00f3','\u00da','\u00fa','\u00dc','\u00fc','\u00d1','\u00f1');
-		$susts = array('Á','á','É','é','Í','í','Ó','ó','Ú','ú','Ü','ü','Ṅ','ñ');
-		$string = str_replace($cods, $susts, $string);
-
-		$no_permitidas= array ("á","é","í","ó","ú","Á","É","Í","Ó","Ú","ñ","À","Ã","Ì","Ò","Ù","Ã™","Ã ","Ã¨","Ã¬","Ã²","Ã¹","ç","Ç","Ã¢","ê","Ã®","Ã´","Ã»","Ã‚","ÃŠ","ÃŽ","Ã”","Ã›","ü","Ã¶","Ã–","Ã¯","Ã¤","«","Ò","Ã","Ã„","Ã‹");
-		$permitidas= array ("a","e","i","o","u","A","E","I","O","U","n","N","A","E","I","O","U","a","e","i","o","u","c","C","a","e","i","o","u","A","E","I","O","U","u","o","O","i","a","e","U","I","A","E");
-		$string = str_replace($no_permitidas, $permitidas ,$string);
 
 		return $string;
 	}
@@ -152,13 +144,15 @@ abstract class Controlfraude{
 
 			$productcode_array[] = $this->model->getProductCode($item['product_id']);
 
-			$_description = $item['description'];
+			$_description = $this->_sanitize_string($item['description']);
 			$_description = $this->getField($_description);
 			$_description = trim($_description);
 			$_description = substr($_description, 0,15);
-			$description_array [] = str_replace("#","",$_description);
+			$description_array [] = str_replace(array("#","&"),"",$_description);
 
-			$product_name = $item['name'];
+			$product_name = str_replace(array("#","&"),"",$item['name']);
+
+			$product_name = $this->_sanitize_string($product_name);
 			$name_array [] = $product_name;
 			$item['sku'] = $this->model->getSku($item['product_id']);
             $sku = $item['sku'] ?: $item['product_id'];  //El sku no es requerido por openCart, entonces si no está seteado devuelve  el product_id

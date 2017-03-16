@@ -1,5 +1,12 @@
 {
+	"repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/apache/logging-log4php"
+        }
+    ],
     "require": {
-        "todopago/php-sdk": "^1.2"
+        "todopago/php-sdk": "^1.8",
+        "apache/log4php": "^2.3"
     }
 }

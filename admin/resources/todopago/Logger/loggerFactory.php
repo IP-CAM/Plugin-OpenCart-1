@@ -1,8 +1,8 @@
 <?php
+require_once DIR_APPLICATION.'../catalog/controller/todopago/vendor/autoload.php';
 require_once 'logger.php';
 require_once dirname(__FILE__).'/../todopago_ctes.php';
-require_once DIR_APPLICATION.'../catalog/controller/todopago/TodoPago/lib/Sdk.php';
-
+require_once DIR_APPLICATION.'../catalog/controller/todopago/vendor/todopago/php-sdk/TodoPago/lib/Sdk.php';  // agrego de esta forma por que es aca donde se definen las constantes endpoint test y prod.
 class loggerFactory{
     public static function createLogger($payment=false, $mode=null, $customer=null, $order=null){
         $logger = new TodoPagoLogger();

@@ -75,6 +75,10 @@ Para llegar al menu de configuración ir a: <em>System->Configuration</em> y sel
 En la versión 1.7 del Plugin se incluyen dos tipos de formularios de pago, redirección y Formulario Híbrido (embebido en el e commerce). Para utilizar este último se debe seleccionar Híbrido en la configuración geneeral delPlugin. 
 ![imagen de solapas de configuracion](https://raw.githubusercontent.com/TodoPago/imagenes/master/opencart15/Selecci%C3%B3n_014.png)
 
+
+** Boton Pagar con Billetera ** En el formulario hibrido aparecera la posibilidad de utilizar la billetera virtual de todopago en un boton que se llama "Boton Pagar con Billetera"
+
+
 [Obtener datos de configuracion](#getcredentials).
 <a name="getcredentials"></a>
 ####Obtener datos de configuracion

@@ -60,6 +60,20 @@
 				</td>
 			</tr>
 
+			<!-- Para los casos en el que el comercio opera con PEI -->
+			<tr>
+				<td colspan="2">
+					<div>
+						<input id="peiCbx" />
+						<label id="labelPeiCheckboxId"></label>
+					</div>
+					<div>
+						<input id="peiTokenTxt" class="left form-control text-box single-line" />
+						<label id="labelPeiTokenTextId"></label>
+					</div><br/>
+				</td>
+			</tr>
+
 			<tr>
 				<td>
 					<div>
@@ -112,11 +126,12 @@
 
 		</tbody>
 		<tfoot>
-		<tr>
-		<td colspan="2">
-				<input type="buttton" id="MY_btnConfirmarPago" class="button" value="Pagar"/>
-		</td>
-		</tr>
+			<tr>
+				<td colspan="2">
+					<input type="button" id="MY_btnPagarConBilletera" class="tp-button button alt" value="Pagar con Billetera" />
+					<input type="button" id="MY_btnConfirmarPago" class="tp-button button alt" value="Pagar" />
+				</td>
+			</tr>
 		</tfoot>
 
 	</table>
@@ -129,8 +144,8 @@
 
 		//securityRequesKey, esta se obtiene de la respuesta del SAR
 		
-		var mail = "";
-		var completeName = "";
+		var mail = "<?php echo $mail; ?>";
+		var completeName = "<?php echo $completeName; ?>";
 		var dni = '';
 		var defDniType = 'DNI'
 
@@ -140,13 +155,15 @@
 			if(window.TPFORMAPI!=undefined){
 				window.TPFORMAPI.hybridForm.initForm({
 					callbackValidationErrorFunction: 'validationCollector',
+					callbackBilleteraFunction: 'billeteraPaymentResponse',
+					botonPagarConBilleteraId: 'MY_btnPagarConBilletera',
+					modalCssClass: 'tp-modal-class',
+					modalContentCssClass: 'tp-modal-content',
+					beforeRequest: 'initLoading',
+					afterRequest: 'stopLoading',
 					callbackCustomSuccessFunction: 'customPaymentSuccessResponse',
 					callbackCustomErrorFunction: 'customPaymentErrorResponse',
-					botonPagarId: 'MY_btnConfirmarPago',
-					modalCssClass: 'modal-class',
-					modalContentCssClass: 'modal-content',
-					beforeRequest: 'initLoading',
-					afterRequest: 'stopLoading'
+					botonPagarId: 'MY_btnConfirmarPago'
 				});
                 window.TPFORMAPI.hybridForm.setItem({
 					publicKey: security,
@@ -161,6 +178,12 @@
 			}
 		}
 		
+		$('#MY_btnConfirmarPago').click( 
+			function() {
+	 			$("#MY_btnConfirmarPago").prop('disabled', true); 
+			}
+		);
+
 		//callbacks de respuesta del pago
 		function validationCollector(parametros) {
 			console.log("My validator collector");
@@ -175,7 +198,11 @@
 
 			window.location.href = "<?php echo $url_second_step ?>&Answer="+response.AuthorizationKey;
 		}
-		
+		function billeteraPaymentResponse(response) {
+			console.log("My wallet callback");
+			console.log(response.ResultCode + " : " + response.ResultMessage);
+            document.location = "<?php echo $url_second_step ?>&Answer="+response.AuthorizationKey;;
+		}
 		function customPaymentErrorResponse(response) {
 			console.log("Mi custom payment error callback");
 			console.log(response.ResultCode + " : " + response.ResultMessage);

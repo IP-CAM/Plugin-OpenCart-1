@@ -2,12 +2,16 @@
 namespace TodoPago;
 
 require_once(dirname(__FILE__)."/Client.php");
+require_once(dirname(__FILE__)."/Utils/FraudControlValidator.php");
 
-define('TODOPAGO_VERSION','1.4.0');
+define('TODOPAGO_VERSION','1.8.1');
 define('TODOPAGO_ENDPOINT_TEST','https://developers.todopago.com.ar/');
 define('TODOPAGO_ENDPOINT_PROD','https://apis.todopago.com.ar/');
 define('TODOPAGO_ENDPOINT_TENATN', 't/1.1/');
 define('TODOPAGO_ENDPOINT_SOAP_APPEND', 'services/');
+
+define('TODOPAGO_ENDPOINT_TEST_FORM','https://developers.todopago.com.ar/resources/TPHybridForm-v0.1.js');
+define('TODOPAGO_ENDPOINT_PROD_FORM','https://forms.todopago.com.ar/resources/TPHybridForm-v0.1.js');
 
 define('TODOPAGO_WSDL_AUTHORIZE', dirname(__FILE__).'/Authorize.wsdl');
 define('TODOPAGO_WSDL_OPERATIONS',dirname(__FILE__).'/Operations.wsdl');
@@ -37,6 +41,21 @@ class Sdk
 		$this->header_http = $this->getHeaderHttp($header_http_array);
 	
 	}
+
+	public function getEndpointForm($mode = null) {
+		if($mode == "test") {
+			$endpoint = TODOPAGO_ENDPOINT_TEST_FORM;
+		} else if($mode == "prod") {
+			$endpoint = TODOPAGO_ENDPOINT_PROD_FORM;
+		} else {
+			if($this->end_point == TODOPAGO_ENDPOINT_PROD) {
+				$endpoint = TODOPAGO_ENDPOINT_PROD_FORM;
+			} else {
+				$endpoint = TODOPAGO_ENDPOINT_TEST_FORM;
+			}
+		}
+		return $endpoint;
+ 	}
 
 	private function getHeaderHttp($header_http_array){
 		$header = "";
@@ -120,7 +139,7 @@ class Sdk
 		);
 
 		// Fix bug #49853 - https://bugs.php.net/bug.php?id=49853
-		if(version_compare(PHP_VERSION, '5.3.8') == -1) {
+		if(version_compare(PHP_VERSION, '5.3.10') != 1) {
 			$clientSoap = new Client($local_wsdl, array(
 					'local_cert'=>($this->local_cert), 
 					'connection_timeout' => $this->connection_timeout,
@@ -152,8 +171,12 @@ class Sdk
 
 	private function getAuthorizeRequestResponse($authorizeRequest){
 		$clientSoap = $this->getClientSoap('Authorize');
-
-		$authorizeRequestResponse = $clientSoap->SendAuthorizeRequest($authorizeRequest);
+		
+		try {
+			$authorizeRequestResponse = $clientSoap->SendAuthorizeRequest($authorizeRequest);
+		} catch (\Exception $e) {
+			$authorizeRequestResponse = $clientSoap->SendAuthorizeRequest($authorizeRequest);
+		}
 
 		return $authorizeRequestResponse;
 	}
@@ -188,10 +211,7 @@ class Sdk
 		unset($optionsAuthorize['CMSVERSION']);
 
 		foreach($optionsAuthorize as $key => $value){
-			if(strpos($value,"#") === false) {
-				$value = substr($value, 0, 254);
-			}
-			$xmlPayload .= "<" . $key . ">" . self::sanitizeValue($value) . "</" . $key . ">";
+			$xmlPayload .= "<" . $key . ">" . $value . "</" . $key . ">";
 		}
 		$xmlPayload .= "</Request>";
 
@@ -223,7 +243,11 @@ class Sdk
 
 	private function getAuthorizeAnswerResponse($authorizeAnswer){
 		$client = $this->getClientSoap('Authorize');
-		$authorizeAnswer = $client->GetAuthorizeAnswer($authorizeAnswer);
+		try {
+			$authorizeAnswer = $client->GetAuthorizeAnswer($authorizeAnswer);	
+		} catch (\Exception $e) {
+			$authorizeAnswer = $client->GetAuthorizeAnswer($authorizeAnswer);
+		}
 		return $authorizeAnswer;
 	}
 
@@ -253,7 +277,12 @@ class Sdk
 
 	private function getVoidRequestResponse($voidRequestOptions){
 		$client = $this->getClientSoap('Authorize');
-		$voidRequestOptions = $client->VoidRequest($voidRequestOptions);
+		try {
+			$voidRequestOptions = $client->VoidRequest($voidRequestOptions);
+		} catch (\Exception $e) {
+			$voidRequestOptions = $client->VoidRequest($voidRequestOptions);
+		}
+		
 		return $voidRequestOptions;
 	}
 
@@ -283,7 +312,11 @@ class Sdk
 
 	private function getReturnRequestResponse($returnRequestOptions){
 		$client = $this->getClientSoap('Authorize');
-		$returnRequestOptions = $client->ReturnRequest($returnRequestOptions);
+		try {
+			$returnRequestOptions = $client->ReturnRequest($returnRequestOptions);
+		} catch (\Exception $e) {
+			$returnRequestOptions = $client->ReturnRequest($returnRequestOptions);
+		}
 		return $returnRequestOptions;
 	}
 
@@ -330,7 +363,7 @@ class Sdk
 		return $user;
 	}
 	
-	private function doRest($url, $data = array(), $method = "GET", $headers = array()){
+	private function doRest($url, $data = array(), $method = "GET", $headers = array(), $retry = false){
 		$curl = curl_init($url);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
@@ -353,7 +386,11 @@ class Sdk
 		$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 		curl_close($curl);
 		if($http_status != 200) {
-			$result = "<Colections/>";
+			if($retry) {
+				$result = "<Colections/>";
+			} else {
+				return $this->doRest($url, $data, $method, $headers, true);
+			}
 		}
 		if( json_decode($result) != null ) {
 			return json_decode($result,true);

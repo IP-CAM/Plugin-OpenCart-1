@@ -374,15 +374,16 @@
         $('#htabs a').tabs();
 
         function devolver(order_id) {
-            var monto = prompt("Monto a Devolver: ", "ej: 1.23");
-            url_devolver = '<?php echo $this->url->link("payment/todopago/get_devolver&token=".$this->session->data["token"]); ?>';
+            var monto = prompt("Monto a Devolver o vacío para devolución total (ej: 1.23): ", "");
 
-
-            $('#content').css('cursor', 'progress');
-            $.post(url_devolver, {
-                order_id: order_id,
-                monto: monto
-            }, llegadaDatosDevolucion);
+            if (monto !== null) {
+              url_devolver = '<?php echo $this->url->link("payment/todopago/get_devolver&token=".$this->session->data["token"]); ?>';
+              $('#content').css('cursor', 'progress');
+              $.post(url_devolver, {
+                  order_id: order_id,
+                  monto: monto
+              }, llegadaDatosDevolucion);
+            }
             return false;
         }
 
