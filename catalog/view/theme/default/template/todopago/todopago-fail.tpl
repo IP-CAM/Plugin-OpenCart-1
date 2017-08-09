@@ -6,6 +6,8 @@ echo $column_right; ?>
     <h2>No se pudo completar el Pago</h2>
     <hr>
     <h3 style="color: orange;">Orden #<?php echo $order_id ?></h3><br />
+
+    <?php echo $mensaje; ?>
     <a href="<?php echo $this->url->link('common/home')?>">Click aca para ir a la pagina principal.</a>
     
 </div>

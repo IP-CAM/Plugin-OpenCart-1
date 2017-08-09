@@ -1,2 +1,2 @@
 <?php
-$_['text_title'] = '<img src="catalog/view/theme/default/image/todopago.jpg" />';
+$_['text_title'] = '<img src="catalog/view/theme/default/image/todopago.jpg" alt="Todopago" title="Todopago"/>';

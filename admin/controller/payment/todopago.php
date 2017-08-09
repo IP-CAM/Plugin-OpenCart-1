@@ -117,6 +117,8 @@ class ControllerPaymentTodopago extends Controller{
                     case "1.8.2":
                         $this->logger->debug("upgrade to v1.9.0");
                     case "1.9.0":
+                        $this->logger->debug("upgrade to v1.9.1");
+                    case "1.9.1":
                         $this->logger->info("Plugin instalado/upgradeado");
 
                     try{
@@ -188,6 +190,16 @@ class ControllerPaymentTodopago extends Controller{
     }
 
 
+    protected function validate() {
+	if($this->request->post['todopago_expiracion_formulario'] == "si") {
+        	if($this->request->post['todopago_tiempo_expiracion_formulario'] < 300000 || $this->request->post['todopago_tiempo_expiracion_formulario'] > 21600000) {
+	            $this->error['code'] = "Rango no valido en campo timeout";
+		    return false;
+	        }
+	}
+        return true;
+    }
+
     public function index() {
         $this->language->load('payment/todopago');
         $this->document->setTitle('TodoPago Configuration');
@@ -197,7 +209,7 @@ class ControllerPaymentTodopago extends Controller{
         $this->load->model('setting/setting');
         $this->load->model('payment/todopago');
         
-        if (($this->request->server['REQUEST_METHOD'] == 'POST')) {
+        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
          $this->model_setting_setting->editSetting('todopago', $this->request->post);
             if ($this->request->post['upgrade'] == '1'){ //Si necesita upgradear llamamos al _install()
                 $this->redirect($this->url->link('payment/todopago/_install', 'action='.self::UPGRADE.'&token=' . $this->session->data['token'], 'SSL'));
@@ -207,7 +219,14 @@ class ControllerPaymentTodopago extends Controller{
 
          }
          $this->redirect($this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'));
-     }
+     } 
+
+    /* Este bloque retorna código de error si los hay */
+    if (isset($this->error['code'])) {
+        $this->data['error_code'] = $this->error['code'];
+    } else {
+        $this->data['error_code'] = '';
+    }
 
      $this->data['heading_title'] = "Todo Pago";
 
@@ -338,6 +357,32 @@ class ControllerPaymentTodopago extends Controller{
      } else {
          $this->data['todopago_maxinstallments'] = $this->config->get('todopago_maxinstallments');
      }
+     
+     
+     //CONFIGURACION TIMEOUT 
+     $this->data['todopago_expiracion_min'] = 300000;
+     $this->data['todopago_expiracion_max'] = 21600000;
+     
+     if (isset($this->request->post['todopago_expiracion_formulario'])) {
+     	$this->data['todopago_expiracion_formulario'] = $this->request->post['todopago_expiracion_formulario'];
+     } else {
+     	$this->data['todopago_expiracion_formulario'] = $this->config->get('todopago_expiracion_formulario');
+     }
+     
+     if (isset($this->request->post['todopago_tiempo_expiracion_formulario'])) {
+     	$this->data['todopago_tiempo_expiracion_formulario'] = $this->request->post['todopago_tiempo_expiracion_formulario'];
+     } else {
+     	$this->data['todopago_tiempo_expiracion_formulario'] = $this->config->get('todopago_tiempo_expiracion_formulario');
+     }
+     
+     //CONFIGURACION VACIAR CARRITO
+     if (isset($this->request->post['todopago_cart'])){
+     	$this->data['todopago_cart'] = $this->request->post['todopago_cart'];
+     } else {
+     	$this->data['todopago_cart'] = $this->config->get('todopago_cart');
+     }
+     
+     ///////////////////////////////////////////////////////////
 
      $this->load->model('localisation/order_status');
      $this->data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
@@ -368,10 +413,16 @@ class ControllerPaymentTodopago extends Controller{
     $rta = '';
     if (!empty($status['Operations'])){
         foreach ($status['Operations'] as $key => $value) {
-           if (! is_array ( $value )) {
-              $value_json = json_encode($value);
-              $rta .= "$key: $value_json \n";
+          if($key == "REFUNDS") {
+		$value_json = json_encode($value,JSON_PRETTY_PRINT);
+		if($value_json == "[]") { $value_json = ""; }
+	  } else if (is_array( $value )) {
+		if(empty($value)) $value_json = "";
+		else $value_json = print_r($value,true);
+          }else{
+          	  $value_json = json_encode($value);
           }
+          $rta .= "$key: $value_json <br/>";
       }
   } else {
     $rta = 'No se ecuentra la operación. Esto puede deberse a que la operación no se haya finalizado o a una configuración erronea.';
@@ -416,16 +467,16 @@ public function get_devolver(){
 
             if (empty($monto)) {
                 $this->logger->info("Pedido de devolución total pesos de la orden $order_id");
-                $this->logger->debug(json_encode($options));
+                $this->logger->info(json_encode($options));
                 $return_response = $connector->voidRequest($options);
             } else {
                 $this->logger->info("Pedido de devolución por $monto pesos de la orden $order_id");
                 $options["AMOUNT"] = $monto;
-                $this->logger->debug(json_encode($options));
+                $this->logger->info(json_encode($options));
                 $return_response = $connector->returnRequest($options);
             }
 
-            $this->logger->debug(json_encode($return_response));
+            $this->logger->info(json_encode($return_response));
 
             //Si el servicio no responde según lo esperado, se interrumpe la devolución
             if (!is_array($return_response) || !array_key_exists('StatusCode', $return_response) || !array_key_exists('StatusMessage', $return_response)) {

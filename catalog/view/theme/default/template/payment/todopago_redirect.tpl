@@ -5,8 +5,8 @@
 	
 	<div class="buttons">
 		<div class="center">
-	<img src="catalog/view/theme/default/image/todopago.jpg" />	<br />
-	<input type="submit" id="boton_pago" value="Confirmar Pago" class="button" />
+			<img src="catalog/view/theme/default/image/todopago.jpg" alt="Todopago" title="Todopago"/><br />
+			<input type="submit" id="boton_pago" value="Confirmar Pago" class="button" />
 		</div>
 	</div>
 </form>

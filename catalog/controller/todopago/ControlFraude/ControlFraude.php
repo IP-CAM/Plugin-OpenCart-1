@@ -51,6 +51,7 @@ abstract class Controlfraude{
 
 		$this->logger->debug(" CSBTFIRSTNAME - nombre de usuario el que se le emite la factura");
 		$payDataOperacion ['CSBTFIRSTNAME'] = $this->getField($this->order['payment_firstname']);
+		//$payDataOperacion ['CSBTFIRSTNAME'] = "";
 
 		$this->logger->debug(" CSBTLASTNAME - Apellido del usuario al que se le emite la factura");
 		$payDataOperacion ['CSBTLASTNAME'] = $this->getField($this->order['payment_lastname']);

@@ -76,6 +76,23 @@ class ModelTodopagoTransaccion extends Model {
         }
     }
 
+    public function saveCostoFinancieroTotal($orderId, $costoTotal) {
+        try {
+            $query = $this->db->query("SELECT total FROM ".DB_PREFIX."order WHERE order_id = ".$orderId);
+            $totalAnterior = $query->row["total"];
+
+            $costoFinancieroTotal = $costoTotal - $totalAnterior;
+
+            $this->db->query("UPDATE ".DB_PREFIX."order SET total = " . $costoTotal . ", commission = " . $costoFinancieroTotal . " WHERE order_id = ".$orderId);
+            $this->db->query("INSERT INTO ".DB_PREFIX."order_total (order_id, code, title, text, value, sort_order) VALUES (" . $orderId . ", 'commission', 'Otros costos', '$" . $costoFinancieroTotal . "' ," . $costoFinancieroTotal . ", 2)");
+            $this->db->query("UPDATE ".DB_PREFIX."order_total SET value = " . $costoTotal . ", text = '$" . $costoTotal . "' WHERE order_id = " . $orderId . " AND code = 'total' AND title = 'Total'");
+        } catch (Exception $e) {
+            $this->logger->info(json_encode($e));
+        }
+
+        return 0;
+    }
+
     //No puedo acceder a las constantes, so...
     public function getNewOrder(){
         return self::NEW_ORDER;

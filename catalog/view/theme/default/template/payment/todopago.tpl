@@ -1,4 +1,3 @@
-
 <?php $url_second_step =  $this->config->get('config_url')."index.php?route=payment/todopago/second_step_todopago&Order=".$order_id; ?>
 <?php if ($this->config->get("todopago_modotestproduccion") == "Test") { ?>
 	<script type="text/javascript" src="https://developers.todopago.com.ar/resources/TPHybridForm-v0.1.js"></script>
@@ -7,7 +6,7 @@
 <?php } ?>
 <div class="buttons" id="confirmar_pago_view">
 	<div class="center">
-		<img src="catalog/view/theme/default/image/todopago.jpg" />	<br />
+		<img src="catalog/view/theme/default/image/todopago.jpg" alt="Todopago" title="Todopago"/>	<br />
 		<input type="button" id="confirmar_pago" onclick="init_my_form()" value="Confirmar Pago" class="button" />
 	</div>
 </div>
@@ -15,11 +14,9 @@
 <script type="text/javascript">
 
 	function init_my_form(){
-		console.log("<?php echo $action ?>"+"&order_id="+"<?php echo $order_id?>");
         $("#confirmar_pago").prop('disabled', true);
 		$.get("<?php echo $action ?>"+"&order_id="+"<?php echo $order_id?>", function(data) {
 			data_json = JSON.parse(data);
-			console.log(data_json.PublicRequestKey);
 			setTimeout(todopago_init_form(data_json.PublicRequestKey), 1000);
 			$("#formualrio_hibrido").show();
 			$("#confirmar_pago_view").hide();
@@ -65,10 +62,10 @@
 				<td colspan="2">
 					<div>
 						<input id="peiCbx" />
-						<label id="labelPeiCheckboxId"></label>
 					</div>
 					<div>
 						<input id="peiTokenTxt" class="left form-control text-box single-line" />
+						<label id="labelPeiCheckboxId"></label>
 						<label id="labelPeiTokenTextId"></label>
 					</div><br/>
 				</td>
@@ -186,31 +183,25 @@
 
 		//callbacks de respuesta del pago
 		function validationCollector(parametros) {
-			console.log("My validator collector");
 			console.log(parametros.field + " ==> " + parametros.error);
 			console.log(parametros);
 		}
 		function customPaymentSuccessResponse(response) {
-			console.log("My custom payment success callback");
-			console.log(response.ResultCode + " : " + response.ResultMessage);
-			console.log(response);
-			console.log("<?php echo $url_second_step ?>&Answer="+response.AuthorizationKey);
-
 			window.location.href = "<?php echo $url_second_step ?>&Answer="+response.AuthorizationKey;
 		}
-		function billeteraPaymentResponse(response) {
-			console.log("My wallet callback");
-			console.log(response.ResultCode + " : " + response.ResultMessage);
-            document.location = "<?php echo $url_second_step ?>&Answer="+response.AuthorizationKey;;
+		function billeteraPaymentResponse(response){
+			if(response.AuthorizationKey){
+				document.location.href = "<?php echo $url_second_step ?>&Answer="+response.AuthorizationKey;
+			}else{	
+				document.location.href = "<?php echo $url_second_step ?>&Error="+response.ResultMessage;	
+			}	
 		}
 		function customPaymentErrorResponse(response) {
-			console.log("Mi custom payment error callback");
-			console.log(response.ResultCode + " : " + response.ResultMessage);
-			console.log(response);
-
-			console.log("<?php echo $url_second_step ?>&Answer="+response.AuthorizationKey);
-
-			window.location.href = "<?php echo $url_second_step ?>&Answer="+response.AuthorizationKey;
+			if(response.AuthorizationKey){
+				document.location.href = "<?php echo $url_second_step ?>&Answer="+response.AuthorizationKey;
+			}else{	
+				document.location.href = "<?php echo $url_second_step ?>&Error="+response.ResultMessage;
+			}	
 		}
 		function initLoading() {
 			console.log('Cargando');
