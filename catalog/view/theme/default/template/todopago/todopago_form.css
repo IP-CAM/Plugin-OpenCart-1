@@ -1,0 +1,159 @@
+/* Hoja de estilo del formulario híbrido */
+@keyframes barFill {
+    0% {
+        width: 0;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+input, select{
+  box-sizing: border-box;
+}
+
+.formuHibrido {
+    width: 980px;
+}
+
+.formuHibrido button {
+    margin: 5px;
+}
+
+.advertencia {
+    color: red;
+    padding: 1px;
+}
+
+.progress {
+    height: 40px;
+    width: 100%
+}
+
+.fail {
+    background-color: lightpink;
+    border-color: red;
+}
+
+.input {
+    margin: auto;
+    height: 40px;
+    background: #F8F8F8;
+    border: 1px solid #CCCCCC;
+    width: 100%;
+}
+
+input {
+    font-size: medium
+}
+
+.modal-class {
+}
+
+.modal-content {
+}
+
+.advertencia {
+    z-index: 100;
+}
+
+#todopago_logo {
+    width: 110px;
+    height: 40px;
+}
+
+#loading-hibrid {
+    border-radius: 0 5px 5px 0;
+    background-color: rgb(244, 0, 122);
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(244, 180, 122, .5) 35px, rgba(244, 200, 122, .5) 70px);
+    width: 0;
+    animation-name: barFill;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+    height: 100%;
+}
+
+.row {
+    display: inline-flex;
+    height: 83px;
+    width: 970px;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.bloque-full {
+    flex: 1;
+}
+
+#tpForm {
+    display: none;
+}
+
+.loaded-form {
+    display: none
+}
+
+#row-pei{
+    display: none
+}
+
+#pei-col{
+    margin-left: 25%;
+}
+
+.bloque-small {
+    flex: 1;
+}
+
+.inlain {
+    display: inline;
+}
+
+.pei-input{
+
+}
+
+.bloque-medium {
+    flex: 1;
+}
+
+.bloque-big {
+    flex: 1;
+}
+
+.bloque {
+    margin: 0 0 0 10px;
+    margin-right: 10px;
+    padding: 1px
+}
+
+.select{
+}
+
+.left-col {
+    flex: 2;
+    flex-direction: row;
+    justify-content: space-between;
+    display: inline-flex;
+}
+
+.float-right {
+    float: right;
+}
+
+.float-left {
+    float: left
+}
+
+.right-col {
+    flex: 2;
+    float: right;
+    right: 0;
+    display: inline-flex;
+    justify-content: space-between;
+}
+
+#row-buttons {
+    height: 40px;
+    display: inline-block
+}

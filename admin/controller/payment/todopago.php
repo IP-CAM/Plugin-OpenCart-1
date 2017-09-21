@@ -48,6 +48,7 @@ class ControllerPaymentTodopago extends Controller{
             //Modelos necesarios
             $this->load->model('payment/todopago');
             $this->load->model('todopago/transaccion_admin');
+            $this->load->model('todopago/addressbook_admin');
 
             $this->logger->debug("Verifying required upgrades");
             /*******************************************************************
@@ -63,6 +64,15 @@ class ControllerPaymentTodopago extends Controller{
                 $this->logger->info('Begining install');
                 case "0.9.0":
                 $this->logger->debug("Upgrade to v0.9.9");
+                
+                try {
+                	$this->model_todopago_addressbook_admin->createTable(); //Crea la tabla direcciones
+                } catch (Exception $e) {
+                	$errorMessage = 'Fallo al crear la tabla todopago_addressbook';
+          			$this->logger->fatal($errorMessage, $e);
+                	break;
+                }
+                
                 try{
                         $this->model_todopago_transaccion_admin->createTable(); //Crea la tabla todopago_transaccion
                     }
@@ -176,6 +186,7 @@ class ControllerPaymentTodopago extends Controller{
     public function _uninstall(){ //Méto do de desinstalación interno, deshace los cambios seleccionados.
         $this->load->model('payment/todopago');
         $this->load->model('todopago/transaccion_admin');
+        $this->load->model('todopago/addressbook_admin');
 
         if (isset($this->request->post['revert_postcode_required'])){
             $this->model_payment_todopago->setPostCodeRequired(false);
@@ -186,6 +197,10 @@ class ControllerPaymentTodopago extends Controller{
         if (isset($this->request->post['drop_table_todopago_transaccion'])){
             $this->model_todopago_transaccion_admin->dropTable();
         }
+        if (isset($this->request->post['drop_table_todopago_addressbook'])){
+       		$this->model_todopago_addressbook_admin->dropTable();
+        }
+        
         $this->redirect($this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'));
     }
 
@@ -201,6 +216,7 @@ class ControllerPaymentTodopago extends Controller{
     }
 
     public function index() {
+    	
         $this->language->load('payment/todopago');
         $this->document->setTitle('TodoPago Configuration');
         $this->document->addScript('view/javascript/todopago/jquery.dataTables.min.js');
@@ -208,6 +224,7 @@ class ControllerPaymentTodopago extends Controller{
         $this->document->addStyle('view/stylesheet/todopago.css');
         $this->load->model('setting/setting');
         $this->load->model('payment/todopago');
+        $this->load->model('todopago/addressbook_admin');
         
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
          $this->model_setting_setting->editSetting('todopago', $this->request->post);
@@ -380,6 +397,12 @@ class ControllerPaymentTodopago extends Controller{
      	$this->data['todopago_cart'] = $this->request->post['todopago_cart'];
      } else {
      	$this->data['todopago_cart'] = $this->config->get('todopago_cart');
+     }
+     //CONFIGURACION FLAG USAR GOOGLE MAPS
+     if (isset($this->request->post['todopago_gmaps_validacion'])){
+     	$this->data['todopago_gmaps_validacion'] = $this->request->post['todopago_gmaps_validacion'];
+     } else {
+     	$this->data['todopago_gmaps_validacion'] = $this->config->get('todopago_gmaps_validacion');
      }
      
      ///////////////////////////////////////////////////////////

@@ -189,6 +189,30 @@
                     </select>
                 </td>
 				<td>¿Desea vaciar el carrito de compras luego de una operación fallida?</td>
+			<!--------------------------  Opcion de Google Maps   ---------------------------->
+			<tr>
+			
+				<td>Utilizar Google Maps</td>
+				<td>
+					<select class="form-control" name="todopago_gmaps_validacion" id="todopago_gmaps_validacion">
+                    	<?php if ($todopago_gmaps_validacion) { ?>
+	                    	<option value="1" selected="selected">
+                        		<?php echo $text_enabled; ?>
+                       		</option>
+                        	<option value="0">
+                        		<?php echo $text_disabled; ?>
+                        	</option>
+                        <?php } else { ?>
+                            <option value="1">
+                            	<?php echo $text_enabled; ?>
+                            </option>
+                            <option value="0" selected="selected">
+                            	<?php echo $text_disabled; ?>
+                           	</option>
+                         <?php } ?>
+                     </select>
+                </td>
+				<td>¿Desea validar la dirección de compra con Google Maps?</td>
 	
 			</tr>
 
