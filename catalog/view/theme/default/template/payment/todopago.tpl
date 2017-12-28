@@ -148,6 +148,7 @@
         }, 1000);
         setTimeout(function () {
             $(".progress").hide('fast');
+            initialFormaDePago();
         }, 1500);
         setTimeout(function () {
             $("#tpForm").show('fast');
@@ -155,7 +156,13 @@
     }
 
     var formaDePago = document.getElementById("formaPagoCbx");
-
+    
+    function initialFormaDePago() {
+        if (formaDePago.value === "1") {
+            $(".loaded-form").show('fast');
+        }
+    }
+    
     $("#formaPagoCbx").click(function() {
         if (formaDePago.value === "1") {
             $(".loaded-form").show('fast');

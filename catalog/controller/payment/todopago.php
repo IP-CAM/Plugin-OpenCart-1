@@ -105,14 +105,98 @@ class ControllerPaymentTodopago extends Controller
                 $this->callSAR($authorizationHTTP, $mode, $paramsSAR);
             } catch (Exception $e) {
                 $this->logger->error("Ha surgido un error en el fist step", $e);
-                $this->model_checkout_order->update($this->order_id, $this->config->get('todopago_order_status_id_rech'), "TODO PAGO (Exception): " . $e);
-                $this->redirect($this->config->get('config_url') . "index.php?route=payment/todopago/url_error&Order=" . $this->order_id);
-
+                $this->model_checkout_order->update($this->order_id, $this->config->get('todopago_order_status_id_rech'), "TODO PAGO (Exception): ".$e);
+                $this->redirect($this->config->get('config_url')."index.php?route=payment/todopago/url_error&Order=".$this->order_id);
             }
-//        } else {
-//            $this->logger->warn("Fallo al iniciar el first step, Ya se encuentra registrado un first step exitoso en la tabla todopago_transaccion");
-//            $this->redirect($this->url->link('common/home'));
-//        }
+/*        }
+        else{
+            $this->logger->warn("Fallo al iniciar el first step, Ya se encuentra registrado un first step exitoso en la tabla todopago_transaccion");
+            $this->redirect($this->url->link('common/home'));
+        }*/
+    }
+
+    private function prepareOrder(){
+        $this->setLoggerForPayment($this->order_id);
+
+        $this->load->model('todopago/transaccion');
+        
+        $this->model_todopago_transaccion->createRegister($this->order_id);
+        
+        $this->load->model('checkout/order');
+        //confirma y pasa a pendiente la orden <-- este tienen que ser configurable
+        $this->model_checkout_order->confirm($this->order_id, 1);
+    }
+
+    private function getPaydata()
+    {
+        $this->load->model('account/customer');
+        $customer = $this->model_account_customer->getCustomer($this->order['customer_id']);
+
+        $this->load->model('payment/todopago');
+        $this->model_payment_todopago->setLogger($this->logger);
+
+        $controlFraude = ControlFraudeFactory::getControlfraudeExtractor($this->config->get('todopago_segmentodelcomercio'), $this->order, $customer, $this->model_payment_todopago, $this->logger);
+        $controlFraude_data = $controlFraude->getDataCF();
+
+        $paydata_comercial = $this->getOptionsSARComercio();
+        $paydata_operation = $this->getOptionsSAROperacion($controlFraude_data);
+
+        return array('comercio' => $paydata_comercial, 'operacion' => $paydata_operation);
+    }
+    
+    private function callSAR($authorizationHTTP, $mode, $paramsSAR){
+            $connector = new TodoPago\Sdk($authorizationHTTP, $mode);
+            $md5Billing = null;
+            $md5Shipping = null;
+            $paydata_comercial = $paramsSAR['comercio'];
+            $paydata_operation = &$paramsSAR['operacion'];
+            //Versiones
+            $versions=array("ECOMMERCENAME"=>"OPENCART","ECOMMERCEVERSION"=>VERSION,"PLUGINVERSION"=>TP_VERSION.$this->getFormIndicator());
+            $paydata_operation= array_merge($paydata_operation,$versions);
+            //Fin de versiones
+            $this->logger->info("params SAR: ".json_encode($paramsSAR));
+            
+/*        if ($this->config->get('todopago_gmaps_validacion')) {//si uso gmaps,valido los datos de paydata
+            $this->language->load('payment/todopago');
+            $this->load->model('todopago/addressbook');
+            $md5Billing = $this->SAR_hasher($paramsSAR['operacion'], 'billing');
+            $md5Shipping = $this->SAR_hasher($paramsSAR['operacion'], 'shipping');
+
+            $gMapsValidator = $this->getGoogleMapsValidator($md5Billing, $md5Shipping);
+        }
+*/
+/*        if (isset($gMapsValidator))
+            $connector->setGoogleClient($gMapsValidator);
+        if ($this->config->get('todopago_gmaps_validacion') && !isset($gMapsValidator)) {
+            $paydata_operation = $this->getAddressbookData($paydata_operation, $md5Billing, $md5Shipping);
+        }
+*/
+        $rta_first_step = $connector->sendAuthorizeRequest($paydata_comercial, $paydata_operation);
+
+  /*      if ($this->config->get('todopago_gmaps_validacion') && isset($gMapsValidator))
+            $this->setAddressBookData($paydata_operation, $connector->getGoogleClient()->getFinalAddress(), $md5Billing, $md5Shipping);
+*/
+            
+            if($rta_first_step["StatusCode"] == 702){
+                $this->logger->debug("Reintento");
+                $rta_first_step = $connector->sendAuthorizeRequest($paydata_comercial, $paydata_operation);
+            }
+
+            $this->logger->info("response SAR: ".json_encode($rta_first_step));
+
+            if($rta_first_step["StatusCode"] == -1){
+                $query = $this->model_todopago_transaccion->recordFirstStep($this->order_id, $paramsSAR, $rta_first_step, $rta_first_step['RequestKey'], $rta_first_step['PublicRequestKey']);
+                $this->logger->debug('query recordFiersStep(): '.$query);
+                $this->model_checkout_order->update($this->order_id, $this->config->get('todopago_order_status_id_pro'), "TODO PAGO: ".$rta_first_step['StatusMessage']);
+                if ($this->config->get('todopago_form')=="hibrid"){
+                echo json_encode($rta_first_step);} else {header('Location: '.$rta_first_step['URL_Request']);}
+            }
+            else{
+                $query = $this->model_todopago_transaccion->recordFirstStep($this->order_id, $paramsSAR, $rta_first_step);
+                $this->logger->debug('query recordFirstStep(): '.$query);
+                $this->model_checkout_order->update($this->order_id, $this->config->get('todopago_order_status_id_rech'), "TODO PAGO: ".$rta_first_step['StatusMessage']);
+                $this->redirect($this->config->get('config_url')."index.php?route=payment/todopago/url_error&Order=".$this->order_id);
+            }
     }
 
     public function second_step_todopago()
@@ -187,91 +271,6 @@ class ControllerPaymentTodopago extends Controller
 
         // call the "View" to render the output
         $this->response->setOutput($this->render());
-    }
-
-    private function prepareOrder()
-    {
-        $this->setLoggerForPayment($this->order_id);
-
-        $this->load->model('todopago/transaccion');
-
-        $this->model_todopago_transaccion->createRegister($this->order_id);
-
-        $this->load->model('checkout/order');
-        //confirma y pasa a pendiente la orden <-- este tienen que ser configurable
-        $this->model_checkout_order->confirm($this->order_id, 1);
-    }
-
-    private function getPaydata()
-    {
-        $this->load->model('account/customer');
-        $customer = $this->model_account_customer->getCustomer($this->order['customer_id']);
-
-        $this->load->model('payment/todopago');
-        $this->model_payment_todopago->setLogger($this->logger);
-
-        $controlFraude = ControlFraudeFactory::getControlfraudeExtractor($this->config->get('todopago_segmentodelcomercio'), $this->order, $customer, $this->model_payment_todopago, $this->logger);
-        $controlFraude_data = $controlFraude->getDataCF();
-
-        $paydata_comercial = $this->getOptionsSARComercio();
-        $paydata_operation = $this->getOptionsSAROperacion($controlFraude_data);
-
-        return array('comercio' => $paydata_comercial, 'operacion' => $paydata_operation);
-    }
-
-    private function callSAR($authorizationHTTP, $mode, $paramsSAR)
-    {
-        $connector = new TodoPago\Sdk($authorizationHTTP, $mode);
-        $md5Billing = null;
-        $md5Shipping = null;
-        $paydata_comercial = $paramsSAR['comercio'];
-        $paydata_operation = $paramsSAR['operacion'];//acá estan los datos de control de fraude
-
-        $this->logger->info("params SAR: " . json_encode($paramsSAR));
-
-/*        if ($this->config->get('todopago_gmaps_validacion')) {//si uso gmaps,valido los datos de paydata
-            $this->language->load('payment/todopago');
-            $this->load->model('todopago/addressbook');
-            $md5Billing = $this->SAR_hasher($paramsSAR['operacion'], 'billing');
-            $md5Shipping = $this->SAR_hasher($paramsSAR['operacion'], 'shipping');
-
-            $gMapsValidator = $this->getGoogleMapsValidator($md5Billing, $md5Shipping);
-        }
-*/
-/*        if (isset($gMapsValidator))
-            $connector->setGoogleClient($gMapsValidator);
-        if ($this->config->get('todopago_gmaps_validacion') && !isset($gMapsValidator)) {
-            $paydata_operation = $this->getAddressbookData($paydata_operation, $md5Billing, $md5Shipping);
-        }
-*/
-        $rta_first_step = $connector->sendAuthorizeRequest($paydata_comercial, $paydata_operation);
-
-  /*      if ($this->config->get('todopago_gmaps_validacion') && isset($gMapsValidator))
-            $this->setAddressBookData($paydata_operation, $connector->getGoogleClient()->getFinalAddress(), $md5Billing, $md5Shipping);
-*/
-        if ($rta_first_step["StatusCode"] == 702) {
-            $this->logger->debug("Reintento");
-            $rta_first_step = $connector->sendAuthorizeRequest($paydata_comercial, $paydata_operation);
-        }
-
-        $this->logger->info("response SAR: " . json_encode($rta_first_step));
-
-        if ($rta_first_step["StatusCode"] == -1) {
-            $query = $this->model_todopago_transaccion->recordFirstStep($this->order_id, $paramsSAR, $rta_first_step, $rta_first_step['RequestKey'], $rta_first_step['PublicRequestKey']);
-            $this->logger->debug('query recordFiersStep(): ' . $query);
-            $this->model_checkout_order->update($this->order_id, $this->config->get('todopago_order_status_id_pro'), "TODO PAGO: " . $rta_first_step['StatusMessage']);
-            if ($this->config->get('todopago_form') == "hibrid") {
-                echo json_encode($rta_first_step);
-                $this->logger->debug("StatusCode == -1: " . json_encode($rta_first_step));
-            } else {
-                header('Location: ' . $rta_first_step['URL_Request']);
-            }
-        } else {
-            $query = $this->model_todopago_transaccion->recordFirstStep($this->order_id, $paramsSAR, $rta_first_step);
-            $this->logger->debug('query recordFirstStep(): ' . $query);
-            $this->model_checkout_order->update($this->order_id, $this->config->get('todopago_order_status_id_rech'), "TODO PAGO: " . $rta_first_step['StatusMessage']);
-            $this->redirect($this->config->get('config_url') . "index.php?route=payment/todopago/url_error&Order=" . $this->order_id);
-        }
     }
 
     private function SAR_hasher($paramsSAR, $tipoDeCompra)
@@ -524,5 +523,15 @@ class ControllerPaymentTodopago extends Controller
         $this->logger->debug("order_info: " . json_encode($this->order));
         $mode = ($this->get_mode() == MODO_TEST) ? "test" : "prod";
         $this->logger = loggerFactory::createLogger(true, $mode, $this->order['customer_id'], $this->order['order_id']);
+    }
+    
+    private function getFormIndicator(){
+        $initial="-E";
+        
+        if($this->config->get('todopago_form')=="hibrid"){
+            $initial="-H";
+        }
+        
+        return $initial;
     }
 }

@@ -6,7 +6,7 @@ define('TODOPAGO_DEVOLUCION_OK', 2011);
 
 class ControllerPaymentTodopago extends Controller{
 
-	const INSTALL = 'install';
+    const INSTALL = 'install';
     const UPGRADE = 'upgrade';
 
     private $error = array();
@@ -432,24 +432,30 @@ class ControllerPaymentTodopago extends Controller{
     $connector = new TodoPago\Sdk($authorizationHTTP, $mode);
     $optionsGS = array('MERCHANT'=>$this->get_id_site(), 'OPERATIONID'=>$order_id);
     $status = $connector->getStatus($optionsGS);
+
+
     $status_json = json_encode($status);
     $rta = '';
-    if (!empty($status['Operations'])){
-        foreach ($status['Operations'] as $key => $value) {
-          if($key == "REFUNDS") {
-		$value_json = json_encode($value,JSON_PRETTY_PRINT);
-		if($value_json == "[]") { $value_json = ""; }
-	  } else if (is_array( $value )) {
-		if(empty($value)) $value_json = "";
-		else $value_json = print_r($value,true);
-          }else{
-          	  $value_json = json_encode($value);
+
+      $refunds = $status['Operations']['REFUNDS'];
+      $auxArray = array(
+          "REFUND" => $refunds
+      );
+
+      $aux = 'REFUND';
+      $auxColection = 'REFUNDS';
+
+      if ($status) {
+          if (isset($status['Operations']) && is_array($status['Operations'])) {
+
+            $rta = $this->printGetStatus($status['Operations'], 0);
+
+          } else {
+              $rta = 'No hay operaciones para esta orden.';
           }
-          $rta .= "$key: $value_json <br/>";
+      } else {
+          $rta = 'No se ecuentra la operación. Esto puede deberse a que la operación no se haya finalizado o a una configuración erronea.';
       }
-  } else {
-    $rta = 'No se ecuentra la operación. Esto puede deberse a que la operación no se haya finalizado o a una configuración erronea.';
-}
 }
 catch(Exception $e){
     $this->logger->fatal("Ha surgido un error al consultar el estado de la orden: ", $e);
@@ -462,6 +468,26 @@ catch(Exception $e){
 echo($rta);
 
 }
+
+
+
+private function printGetStatus($array, $indent) {
+    $rta = '';
+
+    foreach ($array as $key => $value) {
+        if ($key !== 'nil' && $key !== "@attributes") {
+            if (is_array($value) && !is_array($key) ){
+                $rta .= str_repeat("-", $indent) . "$key: <br/>";
+                $rta .= $this->printGetStatus($value, $indent + 2);
+            } else {
+                $rta .= str_repeat("-", $indent) . "$key: $value <br/>";
+            }
+        }
+    }
+    
+    return $rta;
+}
+
 
 public function get_transaction_by_order_id($order_id){
     return $this->db->query("SELECT request_key FROM `".DB_PREFIX."todopago_transaccion` WHERE id_orden=$order_id");
