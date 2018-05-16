@@ -25,14 +25,17 @@ class ControllerPaymentTodopago extends Controller
         $this->logger->debug("order_info: " . json_encode($order_info));
 
         if ($order_info) {
+
             $this->data['order_id'] = $order_info['order_id'];
             $this->data['completeName'] = $order_info['payment_firstname'] . ' ' . $order_info['payment_lastname'];
             $this->data['mail'] = $order_info['email'];
             $this->data['url_error'] = $this->config->get('config_url') . "index.php?route=payment/todopago/url_error&Order=" . $this->data['order_id'];
             $this->data['action'] = $this->config->get('config_url') . "index.php?route=payment/todopago/first_step_todopago";
+
+            $this->data['amount'] = number_format ( $order_info['total'], 2);
             
             if ($this->get_mode() == MODO_TEST){
-                $this->data['validacionJS'] = 'https://developers.todopago.com.ar/resources/v2/TPBSAForm.min.js';
+                $this->data['validacionJS'] = 'https://devteam.com.ar/hibrido2.js';
             }else
                 $this->data['validacionJS'] = 'https://forms.todopago.com.ar/resources/v2/TPBSAForm.min.js';
             if ($this->config->get('todopago_form') == "hibrid") {
@@ -88,7 +91,7 @@ class ControllerPaymentTodopago extends Controller
     public function first_step_todopago()
     {
         $this->order_id = $_REQUEST['order_id'];
-        $this->logger->debug("order_id, entrda fstST: " . $this->order_id);
+        $this->logger->debug("order_id, entrada fistStep: " . $this->order_id);
 
         $this->prepareOrder();
 
@@ -200,17 +203,21 @@ class ControllerPaymentTodopago extends Controller
     }
 
     public function second_step_todopago()
-    {
+    {   
         $this->order_id = $_GET['Order'];
-
         $this->load->model('todopago/transaccion');
         $this->setLoggerForPayment();
-
+        
+        /*
         if (isset($_GET['Error'])) {
             $mensaje = $_GET['Error'];
             $this->redirect($this->config->get('config_url') . "index.php?route=payment/todopago/url_error&Order=" . $this->order_id . "&Mensaje=" . $mensaje);
 
-        } elseif ($this->model_todopago_transaccion->getStep($this->order_id) == $this->model_todopago_transaccion->getSecondStep()) {
+        } elseif ($this->model_todopago_transaccion->getStep($this->order_id) == $this->model_todopago_transaccion->getSecondStep())
+        */
+
+        if ($this->model_todopago_transaccion->getStep($this->order_id) == $this->model_todopago_transaccion->getSecondStep())
+        {
             //Starting second Step
             $answer = $_GET['Answer'];
             $this->logger->info("second step");
@@ -235,6 +242,14 @@ class ControllerPaymentTodopago extends Controller
                 $this->logger->error("Error en el Second Step", $e);
                 $this->redirect($this->config->get('config_url') . "index.php?route=payment/todopago/url_error&Order=" . $this->order_id);
             }
+
+
+            if (isset($_GET['Error'])) {
+                $mensaje = $_GET['Error'];
+                $this->redirect($this->config->get('config_url') . "index.php?route=payment/todopago/url_error&Order=" . $this->order_id . "&Mensaje=" . $mensaje);
+
+            }
+
 
         } else {
             $this->logger->warn("Fallo al iniciar el second step, Ya se encuentra registrado un second step exitoso en la tabla todopago_transaccion");
@@ -455,6 +470,7 @@ class ControllerPaymentTodopago extends Controller
         }
 
         $var = $this->config->get('todopago_maxinstallments');
+       
         if ($var != null) {
             $paydata_operation['MAXINSTALLMENTS'] = $this->config->get('todopago_maxinstallments');
         }

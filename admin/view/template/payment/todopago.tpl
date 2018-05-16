@@ -13,9 +13,17 @@
       <div class="buttons"><a onclick="$('#form').submit();" class="button"><?php echo $button_save; ?></a><a href="<?php echo $cancel; ?>" class="button"><?php echo $button_cancel; ?></a></div>
     </div>
     <div class="content">
-     <?php if ($need_upgrade) { ?>
-     <p class="important-message">Usted ha subido una nueva versión del m&oacute;dulo, para su correcto funcionamiento debe actualizarlo haciendo click en el botón "Upgrade"</p>
-     <?php } ?>
+        <?php if ($need_upgrade) { ?>
+            <p class="important-message">Usted ha subido una nueva versión del m&oacute;dulo, para su correcto funcionamiento debe actualizarlo haciendo click en el botón "Upgrade"</p>
+        <?php }
+
+        if ($need_update_plugin) { ?>
+            <p class="important-message">Se encuentra disponible una versi&oacute;n m&aacute;s reciente del plugin de Todo Pago, puede consultarla desde <a href="https://github.com/TodoPago/Plugin-OpenCart/releases/latest" >aquí</a></p>
+        <?php }
+        if ($config_warning){ ?>
+            <p class="important-message">No se pudo guardar la configuración, revise errores en el formulario.</a></p>
+        <?php } ?>
+
      <div id="htabs" class="htabs">
       <a href="#tab-general">GENERAL</a>
       <a href="#tab-test">AMBIENTE DEVELOPERS</a>
@@ -29,7 +37,7 @@
      <!-- TAB GENERAL -->
      <div id="tab-general">
       <table class="form">
-        <tr>         
+        <tr>
       <td>Enabled</td>
           <td>            <select class="form-control" name="todopago_status" id="todopago_status">
                                         <?php if ($todopago_status == 1) { ?>
@@ -57,7 +65,8 @@
                   <!--<option value="Ticketing" <?php if ($todopago_segmentodelcomercio=="Ticketing") echo "selected"?> >Ticketing</option>
                   <option value="Services" <?php if ($todopago_segmentodelcomercio=="Services") echo "selected"?> >Service</option>
                   <option value="Digital Goods" <?php if ($todopago_segmentodelcomercio=="Digital Goods") echo "selected"?> >Digital Goods</option>
-                </select>-->
+                  -->
+                </select>
               </td>
               <td><em>La elección del segmento determina los tipos de datos a enviar</em></td>
             </tr>
@@ -87,7 +96,7 @@
                 </select>
               </td>
               <td><em>Tipo de Formulario de Pagos</em></td>
-            </tr>  
+            </tr>
             <tr>
               <td>Modo Developers o Producci&oacute;n</td>
               <td>
@@ -97,15 +106,15 @@
                 </select>
               </td>
               <td><em>Debe ser cofigurado en CONFIGURACI&Oacute;N - AMBIENTE DEVELOPERS / PRODUCCION</em></td>
-            </tr>  
-                    <tr> 
+            </tr>
+                    <tr>
                 <?php
                 $checked = $this->config->get('todopago_maxinstallments')
                 ?>
-  
+
                          <td>Máximo de cuotas
                        <?php    if (isset($checked)){ ?>
-                             
+
                                    <label><input type="checkbox" id="habilitar" value="" checked="checked"> Habilitar</label>
                              <?php }else {?>
                               <label><input type="checkbox" id="habilitar" value=""> Habilitar</label>
@@ -113,7 +122,7 @@
                     </td>
                                 <td class="field col-sm-4">
                                     <select name="todopago_maxinstallments" id="todopago_maxinstallments" disabled>
-                        <?php  
+                        <?php
                     for ($i = 0; $i <= 12; $i++) {
               
                                  ?>       <option value="<?php echo $i ?>"><?php echo $i ?></option> <?php
@@ -124,7 +133,7 @@
 
 
                    }
-                    ?>                   
+                    ?>
                                     </select>
                                 </td>
                                 <td class="info-field col-sm-5"><em>* Seleccione la cantidad máxmia de cuotas</em>
@@ -132,8 +141,8 @@
                             </tr>
 
 			<tr>
-			
-				
+
+
 				<td>Tiempo de expiración del formulario</td>
 				<td>
 					<select name="todopago_expiracion_formulario">
@@ -142,13 +151,13 @@
 	                </select>
                 </td>
 				<td>Configurar tiempo de expiración del formulario de pago personalizado</td>
-				
-			
+
+
 			</tr>
-			
+
 			<tr>
-			
-				
+
+
 				<td>Tiempo de expiración del formulario de pago</td>
 				<td>
 					<input type="number" min="300000" max="1800000" name="todopago_tiempo_expiracion_formulario" value="<?php echo $todopago_tiempo_expiracion_formulario; ?>" />
@@ -158,16 +167,16 @@
 
                 </td>
 				<td>Tiempo maximo en el que se puede realizar el pago en el
-				 formulario en milisegundos. Por defecto si no se envia el valor es 
+				 formulario en milisegundos. Por defecto si no se envia el valor es
 				 de 1800000 (30 minutos)
 				</td>
-				
-			
+
+
 			</tr>
-			
+
 			<!----------------         Vaciar carrito        ---------------------->
 			<tr>
-				
+
 				<td>Vaciar carrito de compras</td>
 				<td>
 					<select class="form-control" name="todopago_cart" id="todopago_cart">
@@ -191,7 +200,7 @@
 				<td>¿Desea vaciar el carrito de compras luego de una operación fallida?</td>
 			<!--------------------------  Opcion de Google Maps   ---------------------------->
 			<tr>
-			
+
 				<td>Utilizar Google Maps</td>
 				<td>
 					<select class="form-control" name="todopago_gmaps_validacion" id="todopago_gmaps_validacion">
@@ -213,11 +222,11 @@
                      </select>
                 </td>
 				<td>¿Desea validar la dirección de compra con Google Maps?</td>
-	
+
 			</tr>
 
 
-          </table> 
+          </table>
         </div>
 
         <!-- END TAB GENERAL-->
@@ -245,7 +254,7 @@
                             <div class="col-sm-2"></div>
                             <div class="field col-sm-4">
                                 <button type="button" id="open" class="btn btn-primary">Requerir datos</button>
-                         
+
                             </div>
                         </div>
         </div>
@@ -268,7 +277,7 @@
                             </div>
                         </div>
         <!-- END TAB AMBIENTE TEST -->
-        
+
         <!-- TAB AMBIENTE PRODUCCION -->
         <div id="tab-produccion">
           <table class="form">
@@ -292,7 +301,7 @@
                             <div class="col-sm-2"></div>
                             <div class="field col-sm-4">
                                 <button type="button" id="open_prod" class="btn btn-primary">Requerir datos</button>
-                           
+
                             </div>
                         </div>
         </div>
@@ -317,7 +326,7 @@
                             </div>
                         </div>
         <!--END TAB AMBIENTE PRODUCCION -->
-        
+
         <!-- TAB ESTADO DEL PEDIDO -->
         <div id="tab-estadosdelpedido">
           <table class="form">
@@ -379,7 +388,7 @@
         <div id="tab-status">
           <table class="form" border="1">
 
-            <?php 
+            <?php
             $this->load->model('payment/todopago');
             $orders_array = $this->model_payment_todopago->get_orders();
             $orders_array = json_encode($orders_array->rows);
@@ -387,12 +396,12 @@
             <script type="text/javascript">
               $(document).ready(function() {
                 var valore = '<?php echo $orders_array ?>';
-                console.log(valore);
+                //console.log(valore);
                 var tabla_db = '';
                 valore_json = jQuery.parseJSON(valore);
-                console.log(valore_json);
+                //console.log(valore_json);
                 jQuery.each(valore_json, function(key, value){
-                  console.log(value);
+                  //console.log(value);
                   tabla_db += "<tr>";
                   tabla_db +="<th><a onclick='verstatus("+value.order_id+")'>"+value.order_id+"</a></th>";
                   tabla_db +="<th>"+value.date_added+"</th>";
@@ -409,14 +418,14 @@
                 $("#tabla_db").prepend(tabla_db);
 
                 $('#tabla').dataTable();
-                
+
               } );
 
               function verstatus (order){
                 $('#content').css('cursor', 'progress');
                 url_get_status = '<?php echo $this->url->link("payment/todopago/get_status&token=".$this->session->data["token"]); ?>';
-                $.get(url_get_status,{order_id:order},llegadaDatos); 
-                return false;                                           
+                $.get(url_get_status,{order_id:order},llegadaDatos);
+                return false;
               }
 
               function llegadaDatos(datos)
@@ -432,7 +441,7 @@ console.log(datos);
 modal.setContent(datos);
 modal.open();
 
-              }  
+              }
             </script>
             <table id="tabla" class="display" cellspacing="0" width="100%">
 
@@ -460,7 +469,7 @@ modal.open();
                 </tr>
               </tfoot>
 
-              <tbody id="tabla_db">   
+              <tbody id="tabla_db">
               </tbody>
             </table>
           </div>
@@ -498,7 +507,8 @@ modal.open();
     <script type="text/javascript">
         $(document).ready(function() {
             $('#open').click(function() {
-
+                $("#mail").val('');
+                $("#pass").val('');
                 $('#popup').fadeIn('slow');
                 $('.popup-overlay').fadeIn('slow');
                 $('.popup-overlay').height($(window).height());
@@ -506,7 +516,8 @@ modal.open();
             });
 
             $('#open_prod').click(function() {
-               
+                $("#mail_prod").val('');
+                $("#pass_prod").val('');
                 $('#popup_prod').fadeIn('slow');
                 $('.popup-overlay').fadeIn('slow');
                 $('.popup-overlay').height($(window).height());
@@ -533,11 +544,11 @@ modal.open();
                 $('.popup-overlay').fadeOut('slow');
                 return false;
             });
-            $("#cancel-test").click(function(){    
+            $("#cancel-test").click(function(){
                 $('#popup').fadeOut('slow');
                 $('.popup-overlay').fadeOut('slow');
                 return false;
-            });         
+            });
 
 
             $('#confirm_prod').click(function() {
@@ -561,7 +572,7 @@ modal.open();
                 return false;
             });
 
-            $("#cancel-prod").click(function(){    
+            $("#cancel-prod").click(function(){
                 $('#popup_prod').fadeOut('slow');
                 $('.popup-overlay').fadeOut('slow');
                 return false;
@@ -570,7 +581,7 @@ modal.open();
         });
     </script>
 
- 
+
 <style type="text/css">
     #popup {
         left: 0;
@@ -579,7 +590,7 @@ modal.open();
         width: 100%;
         z-index: 1001;
     }
-    
+
     #popup_prod {
         left: 0;
         position: absolute;
@@ -587,7 +598,7 @@ modal.open();
         width: 100%;
         z-index: 1001;
     }
-    
+
     .content-popup {
         margin: 0px auto;
         margin-top: 130px;
@@ -599,14 +610,14 @@ modal.open();
         background-color: #FFFFFF;
         box-shadow: 0 2px 5px #666666;
     }
-    
+
     .content-popup h2 {
         color: #48484B;
         border-bottom: 1px solid #48484B;
         margin-top: 0;
         padding-bottom: 4px;
     }
-    
+
     .popup-overlay {
         left: 0;
         position: absolute;
@@ -618,17 +629,17 @@ modal.open();
         cursor: pointer;
         opacity: 0.7;
     }
-    
+
     .close {
         positio#logon: absolute;
         right: 15px;
     }
-    
+
     .content-popup img {
         position: relative;
         align-self: right;
     }
-    
+
     .content-popup button {
         position: relative;
         left: 70px;
@@ -637,40 +648,40 @@ modal.open();
      .content-popup #mail {
         position: relative;
         left: 30px;
-        
+
     }
      .content-popup #mail-label {
         position: relative;
         left: 15px;
-        
+
     }
-       
+
      .content-popup #mail_prod {
         position: relative;
         left: 30px;
-        
+
     }
      .content-popup #mail-label_prod {
         position: relative;
         left: 15px;
-        
+
     }
     .content-popup label {}
-    
+
     .content-popup input {}
 </style>
-    
+
         <script>
 
 $(document).ready(function(){
-        
-    
+
+
       if ($('#habilitar').attr('checked')) {
             $("#todopago_maxinstallments").removeAttr("disabled");
                                  }else{
                                   $("#todopago_maxinstallments").val('0');
                                  }
-    $("#habilitar").click(function() {  
+    $("#habilitar").click(function() {
 
 if ($('#habilitar').prop('checked')) {
 
@@ -679,11 +690,11 @@ if ($('#habilitar').prop('checked')) {
 
 }else
     {
-             $("#todopago_maxinstallments").prop('disabled', true);  
+             $("#todopago_maxinstallments").prop('disabled', true);
              $("#todopago_maxinstallments").val('0');
-    
+
     }
-     
-    });        
-    });        
+
+    });
+    });
             </script>
