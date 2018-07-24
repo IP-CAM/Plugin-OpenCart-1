@@ -29,6 +29,9 @@ class ControllerPaymentTodopago extends Controller
             $this->data['order_id'] = $order_info['order_id'];
             $this->data['completeName'] = $order_info['payment_firstname'] . ' ' . $order_info['payment_lastname'];
             $this->data['mail'] = $order_info['email'];
+            
+            $this->data['payment_code'] = $order_info['payment_code'];
+
             $this->data['url_error'] = $this->config->get('config_url') . "index.php?route=payment/todopago/url_error&Order=" . $this->data['order_id'];
             $this->data['action'] = $this->config->get('config_url') . "index.php?route=payment/todopago/first_step_todopago";
 

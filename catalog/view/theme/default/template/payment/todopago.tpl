@@ -175,8 +175,8 @@
             </div>
 
 
-            <div class="tp_row">
-                <div class="tp_col tp_span_2_of_2" style="height: 95px;">
+            <div class="tp_row"> <!-- style="height: 95px;" -->
+                <div id="div-token-pei" class="tp_col tp_span_2_of_2" >
                     <label id="tokenPeiLbl" for="tokenPeiTxt" class="text_small" style="display: inline-block; padding: 10px 10px 10px 2px;"><strong style="font-size:1.2em;">Superaste el monto acumulado utilizando P.E.I.</strong><p style="font-size:1em; "><br>Ingresá tu token de seguridad para verificar<br>tu identidad y continuar el pago.<br>Para obtener el token descargá la Aplicación de Todo Pago PEI<br> y seguí los pasos para la activarlo en un cajero Banelco.</p></label>
                 </div>
                 <div class="tp_col tp_span_1_of_2" style="margin-left:0%;">  
@@ -184,7 +184,16 @@
                 </div>
             </div>
 
-
+            <!-- Token de PEI -->
+        <!-- div class="tp-bloque-full tp-flex tp-flex-responsible tp-main-col">
+            <div class="tp-flex-grow-1">
+                <label id="tokenPeiLbl" for="tokenPeiTxt" class="text_small"></label>
+                <input id="tokenPeiTxt" class="tp_form_control tp-input-row"/>
+            </div>
+            <div class="tp-flex-grow-1">
+                "El amor es lo único que hay que ganarse en la vida, todo lo demás se puede conseguir robando ..."
+            </div>
+        </div -->
 
             <div class="tp_row">
                 <div class="tp_col tp_span_2_of_2">
@@ -224,7 +233,7 @@
     var numeroDeTarjeta = $("#numeroTarjetaTxt");
     var formaDePago = document.getElementById("formaPagoCbx");
 */
-
+    var method_payment = '<?php echo $payment_code; ?>';
 
     var tpformJquery = $.noConflict();
     var urlScript = "<?php echo $validacionJS; ?>";
@@ -376,6 +385,18 @@
 
         setTimeout(function () {
             tpformJquery("#tpForm").fadeTo('fast', 1);
+            if(method_payment == "todopagobilletera"){
+                $("#btn_Billetera").click();
+                $(".billetera_tp").css("display", "none");
+            }
+            var textpei = document.getElementById('tokenPeiLbl').innerText;
+            console.log(textpei.length);
+            if(textpei.length > 0){
+                tpformJquery("#div-token-pei").css("height", "100px");
+            }else{
+                tpformJquery("#div-token-pei").css("height", "0px");
+            }
+            
         }, 2200);
     }
 

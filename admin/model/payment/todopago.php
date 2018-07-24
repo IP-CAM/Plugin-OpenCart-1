@@ -11,7 +11,7 @@ class ModelPaymentTodopago extends Model {
 
 	public function get_orders()
 	{
-		$get_orders = $this->db->query("SELECT order_id, date_added ,store_name, firstname, lastname, total  FROM `".DB_PREFIX."order` WHERE order_status_id<>0 AND payment_code='todopago';");
+		$get_orders = $this->db->query("SELECT order_id, date_added ,store_name, firstname, lastname, total  FROM `".DB_PREFIX."order` WHERE order_status_id<>0 AND payment_code='todopago' OR payment_code='todopagobilletera';");
 		return $get_orders;
 	}
     

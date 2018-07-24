@@ -5,7 +5,7 @@
 	
 	<div class="buttons">
 		<div class="center">
-			<img src="catalog/view/theme/default/image/todopago.jpg" alt="Todopago" title="Todopago"/><br />
+			<img src="https://todopago.com.ar/sites/todopago.com.ar/files/pluginstarjeta.jpg" alt="Todopago" title="Todopago"/><br />
 			<input type="submit" id="boton_pago" value="Confirmar Pago" class="button" />
 		</div>
 	</div>

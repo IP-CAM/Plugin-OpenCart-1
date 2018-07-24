@@ -20,25 +20,25 @@ class ModelPaymentTodopago extends Model {
     return $method_data;
   }
     
-public function setLogger($logger){
-    $this->logger = $logger;
-}
+  public function setLogger($logger){
+      $this->logger = $logger;
+  }
 
-    public function getProducts($order_id){
-        $products = $this->db->query("SELECT op.product_id, op.total, op.name, op.price, op.quantity, pd.description FROM `".DB_PREFIX."order_product` op INNER JOIN `".DB_PREFIX."product_description` pd ON op.product_id = pd.product_id  WHERE `order_id`=".(int)$order_id." AND language_id=".(int)$this->config->get('config_language_id').";");
-        return $products->rows;
-    }
+  public function getProducts($order_id){
+      $products = $this->db->query("SELECT op.product_id, op.total, op.name, op.price, op.quantity, pd.description FROM `".DB_PREFIX."order_product` op INNER JOIN `".DB_PREFIX."product_description` pd ON op.product_id = pd.product_id  WHERE `order_id`=".(int)$order_id." AND language_id=".(int)$this->config->get('config_language_id').";");
+      return $products->rows;
+  }
 
-    public function getSku($productId){
-        $query = "SELECT sku from ".DB_PREFIX."product WHERE product_id = ".$productId.";";
-        $this->logger->debug("SKU query: ".$query);
+  public function getSku($productId){
+      $query = "SELECT sku from ".DB_PREFIX."product WHERE product_id = ".$productId.";";
+      $this->logger->debug("SKU query: ".$query);
 
-        $queryResult = $this->db->query($query);
+      $queryResult = $this->db->query($query);
 
-        $sku = $queryResult->row['sku'];
+      $sku = $queryResult->row['sku'];
 
-        return $sku ?: $productId;
-    }
+      return $sku ?: $productId;
+  }
   
   public function getProductCode($productId){
       //$productCode = $this->getAttribute($productId, "codigo del producto");

@@ -319,11 +319,15 @@ label {
 /*-------------------------------------*/
 /*SECTION PAGAR CON BILLETERA*/
 /*-------------------------------------*/
-.texto_billetera_virtual,
+.texto_billetera_virtual{
+    text-align: center;
+}
+
 .confirmacion {
     text-align: center;
     text-transform: uppercase;
 }
+
 
 /*-------------------------------------*/
 /*FORM PAGAR*/

@@ -198,35 +198,63 @@
                     </select>
                 </td>
 				<td>¿Desea vaciar el carrito de compras luego de una operación fallida?</td>
-			<!--------------------------  Opcion de Google Maps   ---------------------------->
-			<tr>
+    			<!--------------------------  Opcion de Google Maps   ---------------------------->
+    			<tr>
 
-				<td>Utilizar Google Maps</td>
-				<td>
-					<select class="form-control" name="todopago_gmaps_validacion" id="todopago_gmaps_validacion">
-                    	<?php if ($todopago_gmaps_validacion) { ?>
-	                    	<option value="1" selected="selected">
-                        		<?php echo $text_enabled; ?>
-                       		</option>
-                        	<option value="0">
-                        		<?php echo $text_disabled; ?>
-                        	</option>
-                        <?php } else { ?>
-                            <option value="1">
-                            	<?php echo $text_enabled; ?>
-                            </option>
-                            <option value="0" selected="selected">
-                            	<?php echo $text_disabled; ?>
-                           	</option>
-                         <?php } ?>
-                     </select>
-                </td>
-				<td>¿Desea validar la dirección de compra con Google Maps?</td>
+    				<td>Utilizar Google Maps</td>
+    				<td>
+    					<select class="form-control" name="todopago_gmaps_validacion" id="todopago_gmaps_validacion">
+                        	<?php if ($todopago_gmaps_validacion) { ?>
+    	                    	<option value="1" selected="selected">
+                            		<?php echo $text_enabled; ?>
+                           		</option>
+                            	<option value="0">
+                            		<?php echo $text_disabled; ?>
+                            	</option>
+                            <?php } else { ?>
+                                <option value="1">
+                                	<?php echo $text_enabled; ?>
+                                </option>
+                                <option value="0" selected="selected">
+                                	<?php echo $text_disabled; ?>
+                               	</option>
+                             <?php } ?>
+                         </select>
+                    </td>
+    				<td>¿Desea validar la dirección de compra con Google Maps?</td>
 
-			</tr>
+    			</tr>
 
 
+
+          <?php
+              $image_BVTP = $this->config->get('todopago_bannerbilletera');
+              $arr_images =array('pluginstarjeta1', 'pluginstarjeta2', 'pluginstarjeta3');
+          ?>
+          <tr>
+              <td>Billetera en checkout</td>
+              <td >
+                <table>
+                  <?php foreach ($arr_images as $plugin_img) { ?>
+                  <tr>
+                    <td>
+                    <input type="radio" name="todopago_bannerbilletera" value="<?php echo $plugin_img; ?>"  <?php if( $plugin_img==$image_BVTP ) echo 'checked'; ?>  >
+                    </td>
+                    <td>
+                      <img src="https://todopago.com.ar/sites/todopago.com.ar/files/billetera/<?php echo $plugin_img; ?>.jpg" alt="<?php echo $plugin_img; ?>" style="width: 331px;"/>
+                    </td>
+                  </tr>
+                  <?php  }  ?>
+                </table>
+              </td>
+              <td>Seleccione el banner que desea mostrar para Billetera<p id='span-billetera'></p></td>
+          </0tr>
           </table>
+          
+          <script type="text/javascript">
+               $("select option[value=<?php echo $i ?>]").attr("selected","selected");
+
+          </script>
         </div>
 
         <!-- END TAB GENERAL-->
@@ -676,25 +704,38 @@ modal.open();
 $(document).ready(function(){
 
 
-      if ($('#habilitar').attr('checked')) {
-            $("#todopago_maxinstallments").removeAttr("disabled");
-                                 }else{
-                                  $("#todopago_maxinstallments").val('0');
-                                 }
-    $("#habilitar").click(function() {
-
-if ($('#habilitar').prop('checked')) {
-
-  $("#todopago_maxinstallments").removeAttr("disabled");
-
-
-}else
-    {
-             $("#todopago_maxinstallments").prop('disabled', true);
-             $("#todopago_maxinstallments").val('0');
-
+    if ($('#habilitar').attr('checked')) {
+        $("#todopago_maxinstallments").removeAttr("disabled");
+    }else{
+        $("#todopago_maxinstallments").val('0');
     }
 
+    $("#habilitar").click(function() {
+        if ($('#habilitar').prop('checked')) {
+          $("#todopago_maxinstallments").removeAttr("disabled");
+        }else{
+          $("#todopago_maxinstallments").prop('disabled', true);
+          $("#todopago_maxinstallments").val('0');
+        }
+
     });
+
+    $( "form" ).submit(function( event ) {
+      if ( $("input[name='todopago_bannerbilletera']").is(':checked')==true ) {
+        //$( "span" ).text( "Validated..." ).show();
+        return;
+      }
+
+
+      alert('Debe seleccionar una imagen para la billetera virtual.');        
+      //$( "#span-billetera" ).text( "Debe seleccionar una imagen para la billetera virtual." ).show().fadeOut( 10000 ).focus();
+      event.preventDefault();
     });
+
+});
+
+
+
+
+
             </script>
